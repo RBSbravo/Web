@@ -294,7 +294,7 @@ const FileUploadSection = ({
       // If entityId is null (new ticket), the file is a temp file
       // If entityId exists (existing ticket), fetch from server
       if (entityId) {
-        const fullUrl = `http://localhost:3000/api/files/${file.id}/download`;
+        const fullUrl = `${import.meta.env.VITE_API_BASE_URL || 'https://backend-ticketing-system.up.railway.app/api'}/files/${file.id}/download`;
         
         const response = await fetch(fullUrl, {
           method: 'GET',

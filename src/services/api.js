@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Get API URL from environment variables or use default
-const API_BASE_URL = 'https://backend-ticketing-system.up.railway.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://backend-ticketing-system.up.railway.app/api';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -246,7 +246,7 @@ export const fileAPI = {
 
 // WebSocket connection for real-time updates
 export const connectWebSocket = (token) => {
-  const WS_URL = 'wss://backend-ticketing-system.up.railway.app';
+  const WS_URL = import.meta.env.VITE_WS_URL || 'wss://backend-ticketing-system.up.railway.app';
   const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
   
   ws.onopen = () => {
