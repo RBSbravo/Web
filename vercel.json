@@ -16,6 +16,7 @@
     }
   ],
   "installCommand": "npm install --legacy-peer-deps --force",
+  "buildCommand": "npm run build",
   "env": {
     "VITE_API_BASE_URL": "https://backend-ticketing-system.up.railway.app/api",
     "VITE_SOCKET_URL": "https://backend-ticketing-system.up.railway.app",
