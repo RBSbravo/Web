@@ -246,7 +246,7 @@ export const fileAPI = {
 
 // WebSocket connection for real-time updates
 export const connectWebSocket = (token) => {
-  const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
+  const WS_URL = 'wss://backend-ticketing-system.up.railway.app';
   const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
   
   ws.onopen = () => {
