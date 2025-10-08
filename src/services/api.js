@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+// Get API URL from environment variables or use default
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -245,7 +246,8 @@ export const fileAPI = {
 
 // WebSocket connection for real-time updates
 export const connectWebSocket = (token) => {
-  const ws = new WebSocket(`ws://localhost:3000/ws?token=${token}`);
+  const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
+  const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
   
   ws.onopen = () => {
     console.log('WebSocket connected');
