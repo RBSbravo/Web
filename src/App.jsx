@@ -5,6 +5,7 @@ import { UserProvider } from './context/UserContext';
 import Layout from './components/layout/Layout';
 import LoadingSpinner from './components/layout/LoadingSpinner';
 import useUser from './context/useUser';
+import DebugEnv from './components/DebugEnv';
 
 // Lazy load pages to reduce initial bundle size
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -53,7 +54,12 @@ function App() {
                 </ProtectedRoute>
               }>
                 <Route index element={<Navigate to="/app/dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="dashboard" element={
+                  <>
+                    <DebugEnv />
+                    <Dashboard />
+                  </>
+                } />
                 <Route path="tasks/:id" element={<Tasks />} />
                 <Route path="tasks" element={<Tasks />} />
                 <Route path="tickets/:id" element={<Tickets />} />
