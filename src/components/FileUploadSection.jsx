@@ -295,8 +295,9 @@ const FileUploadSection = ({
       // If entityId exists (existing ticket), fetch from server
       if (entityId) {
         const fullUrl = `${import.meta.env.VITE_API_BASE_URL || 'https://backend-ticketing-system.up.railway.app/api'}/files/${file.id}/download`;
+        const finalUrl = fullUrl.includes('localhost') ? `https://backend-ticketing-system.up.railway.app/api/files/${file.id}/download` : fullUrl;
         
-        const response = await fetch(fullUrl, {
+        const response = await fetch(finalUrl, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

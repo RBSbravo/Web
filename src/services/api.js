@@ -3,9 +3,18 @@ import axios from 'axios';
 // Get API URL from environment variables or use default
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://backend-ticketing-system.up.railway.app/api';
 
+console.log('API_BASE_URL:', API_BASE_URL);
+console.log('Environment variables:', import.meta.env);
+
+// Force Railway URL in production
+const PRODUCTION_API_URL = 'https://backend-ticketing-system.up.railway.app/api';
+const FINAL_API_URL = API_BASE_URL.includes('localhost') ? PRODUCTION_API_URL : API_BASE_URL;
+
+console.log('FINAL_API_URL:', FINAL_API_URL);
+
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: FINAL_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -247,7 +256,8 @@ export const fileAPI = {
 // WebSocket connection for real-time updates
 export const connectWebSocket = (token) => {
   const WS_URL = import.meta.env.VITE_WS_URL || 'wss://backend-ticketing-system.up.railway.app';
-  const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
+  const FINAL_WS_URL = WS_URL.includes('localhost') ? 'wss://backend-ticketing-system.up.railway.app' : WS_URL;
+  const ws = new WebSocket(`${FINAL_WS_URL}/ws?token=${token}`);
   
   ws.onopen = () => {
     console.log('WebSocket connected');

@@ -5,6 +5,8 @@ let socket;
 export const connectSocket = (token, userId, onNotification) => {
   const SOCKET_URL = 'https://backend-ticketing-system.up.railway.app';
   
+  console.log('Connecting to socket:', SOCKET_URL);
+  
   socket = io(SOCKET_URL, {
     auth: { token }
   });
