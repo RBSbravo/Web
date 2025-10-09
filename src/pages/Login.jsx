@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DebugInfo from '../components/DebugInfo';
 import {
   Box,
   Button,
@@ -234,7 +233,6 @@ const Login = () => {
       }}
     >
       <Container component="main" maxWidth="sm">
-        <DebugInfo />
         <Slide direction="up" in={true} timeout={800}>
           <Paper
             elevation={theme.palette.mode === 'dark' ? 2 : 8}
