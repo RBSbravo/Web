@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -34,7 +34,6 @@ function useQuery() {
 }
 
 const ResetPassword = () => {
-  const navigate = useNavigate();
   const query = useQuery();
   const token = query.get('token');
 
@@ -141,18 +140,10 @@ const ResetPassword = () => {
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     • Your password has been securely updated<br/>
                     • You can now log in with your new password<br/>
-                    • The reset link is no longer valid for security
+                    • The reset link is no longer valid for security<br/>
+                    • You can navigate to the login page when ready
                   </Typography>
                 </Alert>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  sx={{ mt: 2, py: 1.5 }}
-                  onClick={() => navigate('/login')}
-                >
-                  Go to Login
-                </Button>
               </CardContent>
             </Card>
           </Fade>
@@ -286,17 +277,9 @@ const ResetPassword = () => {
             <Divider sx={{ my: 3 }} />
             
             <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-                Remember your password?
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Remember your password? You can log in anytime using the login page.
               </Typography>
-              <Button
-                variant="text"
-                color="primary"
-                onClick={() => navigate('/login')}
-                disabled={loading}
-              >
-                Back to Login
-              </Button>
             </Box>
           </Paper>
         </Fade>
