@@ -1,5 +1,14 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
@@ -13,12 +22,29 @@
         {
           "key": "Cache-Control",
           "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }
   ],
+  "installCommand": "npm install --legacy-peer-deps --force",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
   "env": {
     "VITE_API_BASE_URL": "https://backend-ticketing-system.up.railway.app/api",
     "VITE_SOCKET_URL": "https://backend-ticketing-system.up.railway.app",
