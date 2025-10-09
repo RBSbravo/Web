@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-// Force Railway URL for production - Deployment Test
+// Force Railway URL for production - Final Fix
 const API_BASE_URL = 'https://backend-ticketing-system.up.railway.app/api';
 
 console.log('Using Railway API URL:', API_BASE_URL);
-console.log('Deployment test - Railway URL configured');
+console.log('Final deployment - Railway URL configured');
 
 // Create axios instance with default config
 const api = axios.create({
