@@ -1,55 +1,8 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "routes": [
-    {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "/$1"
-    },
-    {
-      "src": "/login",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/reset-password",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/register",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/app/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "installCommand": "npm install --legacy-peer-deps --force",
-  "buildCommand": "npm run build",
-  "env": {
-    "VITE_API_BASE_URL": "https://backend-ticketing-system.up.railway.app/api",
-    "VITE_SOCKET_URL": "https://backend-ticketing-system.up.railway.app",
-    "VITE_WS_URL": "wss://backend-ticketing-system.up.railway.app",
-    "VITE_APP_NAME": "Ticketing and Task Management System",
-    "VITE_APP_VERSION": "1.0.0"
-  }
+  ]
 }
