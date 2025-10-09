@@ -35,6 +35,9 @@ const PageLoadingFallback = () => (
   ProtectedRoute.displayName = 'ProtectedRoute';
 
 function App() {
+  // Force new deployment - Railway URLs configured
+  console.log('App loaded - Railway backend configured');
+  
   return (
     <ThemeProvider>
       <UserProvider>
