@@ -27,6 +27,14 @@
       "dest": "/index.html"
     },
     {
+      "src": "/reset-password",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/register",
+      "dest": "/index.html"
+    },
+    {
       "src": "/app/(.*)",
       "dest": "/index.html"
     },
