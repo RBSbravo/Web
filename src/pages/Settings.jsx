@@ -35,9 +35,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
 import PageHeader from '../components/layout/PageHeader';
+import RateLimitAlert from '../components/RateLimitAlert';
 import { authAPI, userAPI } from '../services/api';
 import passwordValidator from '../utils/passwordValidator';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import { handleApiError, rateLimitHandler } from '../utils/rateLimitHandler';
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -92,6 +94,7 @@ const Settings = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+  const [passwordRateLimitData, setPasswordRateLimitData] = useState(null);
 
   // Removed global save; actions are handled inline
 
@@ -197,12 +200,20 @@ const Settings = () => {
   };
 
   const handleChangePassword = async () => {
+    // Check if we can retry (not rate limited)
+    if (!rateLimitHandler.canRetry('changePassword')) {
+      const remainingTime = rateLimitHandler.getRemainingRetryTime('changePassword');
+      setPasswordError(`Please wait ${Math.ceil(remainingTime / 1000)} seconds before trying again.`);
+      return;
+    }
+    
     if (!validatePasswords()) {
       return;
     }
     
     setIsChangingPassword(true);
     setPasswordError('');
+    setPasswordRateLimitData(null);
     
     try {
       // Use the real API call
@@ -212,6 +223,7 @@ const Settings = () => {
       });
       
       setPasswordSuccess(true);
+      rateLimitHandler.clearRetryTimer('changePassword');
       setPasswordData({
         currentPassword: '',
         newPassword: '',
@@ -240,24 +252,32 @@ const Settings = () => {
       }, 3000);
       
     } catch (error) {
-      // Map backend errors to user-friendly messages
-      let errorMessage = error.response?.data?.error || error.message || 'Failed to change password';
+      const errorInfo = handleApiError(error);
       
-      if (errorMessage.toLowerCase().includes('incorrect')) {
-        errorMessage = 'Your current password is incorrect.';
-      } else if (errorMessage.toLowerCase().includes('at least 6 characters')) {
-        errorMessage = 'New password must be at least 6 characters.';
-      } else if (errorMessage.toLowerCase().includes('not found')) {
-        errorMessage = 'User not found. Please re-login.';
-      } else if (errorMessage.toLowerCase().includes('required')) {
-        errorMessage = 'Please fill in all password fields.';
-      } else if (errorMessage.toLowerCase().includes('server error')) {
-        errorMessage = 'A server error occurred. Please try again later.';
-      } else if (errorMessage.toLowerCase().includes('same as current')) {
-        errorMessage = 'New password must be different from the current password.';
+      if (errorInfo.type === 'rate_limit') {
+        setPasswordRateLimitData(error.rateLimitData || { error: error.message });
+        rateLimitHandler.setRetryTimer('changePassword', errorInfo.retryTime);
+        setPasswordError(errorInfo.message);
+      } else {
+        // Map backend errors to user-friendly messages
+        let errorMessage = errorInfo.message;
+        
+        if (errorMessage.toLowerCase().includes('incorrect')) {
+          errorMessage = 'Your current password is incorrect.';
+        } else if (errorMessage.toLowerCase().includes('at least 6 characters')) {
+          errorMessage = 'New password must be at least 6 characters.';
+        } else if (errorMessage.toLowerCase().includes('not found')) {
+          errorMessage = 'User not found. Please re-login.';
+        } else if (errorMessage.toLowerCase().includes('required')) {
+          errorMessage = 'Please fill in all password fields.';
+        } else if (errorMessage.toLowerCase().includes('server error')) {
+          errorMessage = 'A server error occurred. Please try again later.';
+        } else if (errorMessage.toLowerCase().includes('same as current')) {
+          errorMessage = 'New password must be different from the current password.';
+        }
+        
+        setPasswordError(errorMessage);
       }
-      
-      setPasswordError(errorMessage);
     } finally {
       setIsChangingPassword(false);
     }
@@ -444,8 +464,19 @@ const Settings = () => {
                     Password changed successfully! You will be logged out for security.
                   </Alert>
                 )}
+
+                <RateLimitAlert
+                  isOpen={!!passwordRateLimitData}
+                  onClose={() => setPasswordRateLimitData(null)}
+                  rateLimitData={passwordRateLimitData}
+                  endpoint="changePassword"
+                  onRetry={() => {
+                    setPasswordRateLimitData(null);
+                    setPasswordError('');
+                  }}
+                />
                 
-                {passwordError && (
+                {passwordError && !passwordRateLimitData && (
                   <Alert severity="error" sx={{ mb: 2 }}>
                     {passwordError}
                   </Alert>

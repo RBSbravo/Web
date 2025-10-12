@@ -27,7 +27,9 @@ import {
 import { authAPI } from '../services/api';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import RateLimitAlert from '../components/RateLimitAlert';
 import passwordValidator from '../utils/passwordValidator';
+import { handleApiError, rateLimitHandler } from '../utils/rateLimitHandler';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -45,6 +47,7 @@ const ResetPassword = () => {
   const [showPw, setShowPw] = useState({ new: false, confirm: false });
   const [passwordErrors, setPasswordErrors] = useState({});
   const [isResetComplete, setIsResetComplete] = useState(false);
+  const [rateLimitData, setRateLimitData] = useState(null);
 
   if (!token) {
     return (
@@ -97,8 +100,16 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Check if we can retry (not rate limited)
+    if (!rateLimitHandler.canRetry('resetPassword')) {
+      const remainingTime = rateLimitHandler.getRemainingRetryTime('resetPassword');
+      setError(`Please wait ${Math.ceil(remainingTime / 1000)} seconds before trying again.`);
+      return;
+    }
+    
     setError('');
     setSuccess('');
+    setRateLimitData(null);
     
     if (!validatePasswords()) {
       return;
@@ -109,8 +120,17 @@ const ResetPassword = () => {
       await authAPI.resetPassword({ token, password: newPassword });
       setSuccess('Password reset successful! You can now log in with your new password.');
       setIsResetComplete(true);
+      rateLimitHandler.clearRetryTimer('resetPassword');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to reset password. The link may be invalid or expired.');
+      const errorInfo = handleApiError(err);
+      
+      if (errorInfo.type === 'rate_limit') {
+        setRateLimitData(err.rateLimitData || { error: err.message });
+        rateLimitHandler.setRetryTimer('resetPassword', errorInfo.retryTime);
+        setError(errorInfo.message);
+      } else {
+        setError(errorInfo.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -233,8 +253,20 @@ const ResetPassword = () => {
                 }}
               />
 
+              {/* Rate Limit Alert */}
+              <RateLimitAlert
+                isOpen={!!rateLimitData}
+                onClose={() => setRateLimitData(null)}
+                rateLimitData={rateLimitData}
+                endpoint="resetPassword"
+                onRetry={() => {
+                  setRateLimitData(null);
+                  setError('');
+                }}
+              />
+
               {/* Error Message */}
-              {error && (
+              {error && !rateLimitData && (
                 <Alert 
                   severity="error" 
                   sx={{ mt: 2 }}
