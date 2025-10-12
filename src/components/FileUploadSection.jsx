@@ -15,7 +15,8 @@ import {
   DialogActions, 
   DialogContent,
   Alert,
-  Tooltip
+  Tooltip,
+  useTheme
 } from '@mui/material';
 import { 
   AttachFile as AttachFileIcon, 
@@ -49,6 +50,7 @@ const FileUploadSection = ({
   readOnly = false,
   entityType = 'general' // 'task', 'ticket', 'comment', or 'general'
 }) => {
+  const theme = useTheme();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
