@@ -46,6 +46,22 @@ api.interceptors.response.use(
       originalRequest.url.startsWith('/auth/logout')
     );
     
+    // Handle rate limiting (429 status)
+    if (error.response?.status === 429) {
+      const rateLimitData = {
+        error: error.response.data?.error || 'Too many requests',
+        retryAfter: error.response.data?.retryAfter || '15 minutes',
+        limit: error.response.headers['ratelimit-limit'],
+        remaining: error.response.headers['ratelimit-remaining'],
+        reset: error.response.headers['ratelimit-reset']
+      };
+      
+      // Store rate limit info for UI display
+      error.rateLimitData = rateLimitData;
+      
+      console.warn('Rate limit exceeded:', rateLimitData);
+    }
+    
     if (error.response?.status === 401 && isAuthEndpoint) {
       console.log('Auth endpoint 401 error - logging out');
       localStorage.removeItem('token');

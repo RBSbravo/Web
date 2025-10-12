@@ -40,8 +40,10 @@ import {
 import mitoLogo from '../assets/mito_logo.png';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import RateLimitAlert from '../components/RateLimitAlert';
 import useUser from '../context/useUser';
 import { authAPI } from '../services/api';
+import { handleApiError, rateLimitHandler } from '../utils/rateLimitHandler';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -55,6 +57,7 @@ const Login = () => {
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [loginRateLimitData, setLoginRateLimitData] = useState(null);
   const [loginFormData, setLoginFormData] = useState({
     email: '',
     password: '',
@@ -65,6 +68,7 @@ const Login = () => {
   const [registerError, setRegisterError] = useState('');
   const [registerLoading, setRegisterLoading] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [registerRateLimitData, setRegisterRateLimitData] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [registerFormData, setRegisterFormData] = useState({
     firstname: '',
@@ -122,15 +126,26 @@ const Login = () => {
       setLoginError('Please fill in all fields');
       return;
     }
+    
+    // Check if we can retry (not rate limited)
+    if (!rateLimitHandler.canRetry('login')) {
+      const remainingTime = rateLimitHandler.getRemainingRetryTime('login');
+      setLoginError(`Please wait ${Math.ceil(remainingTime / 1000)} seconds before trying again.`);
+      return;
+    }
+    
     setLoginLoading(true);
     setLoginError('');
     setLoginSuccess(false);
+    setLoginRateLimitData(null);
+    
     try {
       const response = await authAPI.login(loginFormData);
       const { data } = response;
       
       if (data && data.token) {
         setLoginSuccess(true);
+        rateLimitHandler.clearRetryTimer('login');
         const userData = {
           user: data.user,
           token: data.token
@@ -142,8 +157,17 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      const errorMessage = err.response?.data?.error || err.response?.data?.message || 'Login failed. Please try again.';
-      setLoginError(errorMessage);
+      
+      const errorInfo = handleApiError(err);
+      
+      if (errorInfo.type === 'rate_limit') {
+        setLoginRateLimitData(err.rateLimitData);
+        rateLimitHandler.setRetryTimer('login', errorInfo.retryTime);
+        setLoginError(errorInfo.message);
+      } else {
+        setLoginError(errorInfo.message);
+      }
+      
       setLoginLoading(false);
     }
   };
@@ -174,15 +198,26 @@ const Login = () => {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!validateRegisterForm()) return;
+    
+    // Check if we can retry (not rate limited)
+    if (!rateLimitHandler.canRetry('register')) {
+      const remainingTime = rateLimitHandler.getRemainingRetryTime('register');
+      setRegisterError(`Please wait ${Math.ceil(remainingTime / 1000)} seconds before trying again.`);
+      return;
+    }
+    
     setRegisterLoading(true);
     setRegisterError('');
     setRegisterSuccess(false);
+    setRegisterRateLimitData(null);
+    
     try {
       const registrationData = { ...registerFormData };
       delete registrationData.confirmPassword;
       const response = await authAPI.register(registrationData);
       if (response.data) {
         setRegisterSuccess(true);
+        rateLimitHandler.clearRetryTimer('register');
         
         // Clear all form fields
         setRegisterFormData({
@@ -203,8 +238,15 @@ const Login = () => {
         }, 2000); // 2 second delay
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
-      setRegisterError(errorMessage);
+      const errorInfo = handleApiError(err);
+      
+      if (errorInfo.type === 'rate_limit') {
+        setRegisterRateLimitData(err.rateLimitData);
+        rateLimitHandler.setRetryTimer('register', errorInfo.retryTime);
+        setRegisterError(errorInfo.message);
+      } else {
+        setRegisterError(errorInfo.message);
+      }
     } finally {
       setRegisterLoading(false);
     }
@@ -378,7 +420,19 @@ const Login = () => {
                     Forgot password?
                   </Link>
                 </Box>
-                {loginError && (
+                
+                <RateLimitAlert
+                  isOpen={!!loginRateLimitData}
+                  onClose={() => setLoginRateLimitData(null)}
+                  rateLimitData={loginRateLimitData}
+                  endpoint="login"
+                  onRetry={() => {
+                    setLoginRateLimitData(null);
+                    setLoginError('');
+                  }}
+                />
+                
+                {loginError && !loginRateLimitData && (
                   <Fade in={true}>
                     <Alert severity="error" sx={{ width: '100%', mb: 2 }} icon={<ErrorIcon />}>
                       {loginError}
@@ -563,7 +617,19 @@ const Login = () => {
                     />
                   </Grid>
                 </Grid>
-                {registerError && (
+                
+                <RateLimitAlert
+                  isOpen={!!registerRateLimitData}
+                  onClose={() => setRegisterRateLimitData(null)}
+                  rateLimitData={registerRateLimitData}
+                  endpoint="register"
+                  onRetry={() => {
+                    setRegisterRateLimitData(null);
+                    setRegisterError('');
+                  }}
+                />
+                
+                {registerError && !registerRateLimitData && (
                   <Fade in={true}>
                     <Alert severity="error" sx={{ width: '100%', mt: 2 }} icon={<ErrorIcon />}>
                       {registerError}
