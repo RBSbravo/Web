@@ -157,8 +157,11 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
+      console.log('Error response:', err.response);
+      console.log('Error data:', err.response?.data);
       
       const errorInfo = handleApiError(err);
+      console.log('Error info from handleApiError:', errorInfo);
       
       if (errorInfo.type === 'rate_limit') {
         setLoginRateLimitData(err.rateLimitData);
@@ -238,7 +241,12 @@ const Login = () => {
         }, 2000); // 2 second delay
       }
     } catch (err) {
+      console.error('Registration error:', err);
+      console.log('Registration error response:', err.response);
+      console.log('Registration error data:', err.response?.data);
+      
       const errorInfo = handleApiError(err);
+      console.log('Registration error info from handleApiError:', errorInfo);
       
       if (errorInfo.type === 'rate_limit') {
         setRegisterRateLimitData(err.rateLimitData);

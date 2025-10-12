@@ -122,6 +122,8 @@ export const rateLimitHandler = new RateLimitHandler();
 
 // Helper function to handle API errors with rate limiting
 export const handleApiError = (error) => {
+  console.log('handleApiError called with:', error);
+  
   const rateLimitResult = rateLimitHandler.handleRateLimitError(error);
   
   if (rateLimitResult.isRateLimited) {
@@ -146,7 +148,7 @@ export const handleApiError = (error) => {
   if (error.response?.status === 400) {
     return {
       type: 'validation',
-      message: error.response.data?.error || 'Invalid input. Please check your data.'
+      message: error.response.data?.error || error.response.data?.message || 'Invalid input. Please check your data.'
     };
   }
   
@@ -154,6 +156,29 @@ export const handleApiError = (error) => {
     return {
       type: 'server_error',
       message: 'Server error. Please try again later.'
+    };
+  }
+  
+  // Handle network errors
+  if (!error.response) {
+    return {
+      type: 'network_error',
+      message: 'Network error. Please check your connection and try again.'
+    };
+  }
+  
+  // Handle other HTTP errors
+  if (error.response?.data?.error) {
+    return {
+      type: 'api_error',
+      message: error.response.data.error
+    };
+  }
+  
+  if (error.response?.data?.message) {
+    return {
+      type: 'api_error',
+      message: error.response.data.message
     };
   }
   
