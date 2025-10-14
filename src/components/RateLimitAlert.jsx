@@ -30,15 +30,23 @@ const RateLimitAlert = ({
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
-    if (!isOpen || !rateLimitData) return;
+    if (!isOpen || !rateLimitData) {
+      setTimeRemaining(0);
+      setProgress(100);
+      return;
+    }
 
     const retryTime = rateLimitHandler.calculateRetryTime(rateLimitData);
-    const totalTime = retryTime;
+    const totalTime = Math.max(retryTime, 1000); // Ensure minimum 1 second
     let remainingTime = retryTime;
+
+    // Set initial values
+    setTimeRemaining(remainingTime);
+    setProgress((remainingTime / totalTime) * 100);
 
     const timer = setInterval(() => {
       remainingTime -= 1000;
-      setTimeRemaining(remainingTime);
+      setTimeRemaining(Math.max(0, remainingTime));
       
       const progressPercent = Math.max(0, (remainingTime / totalTime) * 100);
       setProgress(progressPercent);

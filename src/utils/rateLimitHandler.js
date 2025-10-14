@@ -28,7 +28,8 @@ export class RateLimitHandler {
         retryTime: retryTime,
         limit: rateLimitData.limit,
         remaining: rateLimitData.remaining,
-        reset: rateLimitData.reset
+        reset: rateLimitData.reset,
+        rateLimitData: rateLimitData // Include the full rate limit data
       };
     }
     
@@ -133,7 +134,8 @@ export const handleApiError = (error) => {
       retryAfter: rateLimitResult.retryAfter,
       retryTime: rateLimitResult.retryTime,
       limit: rateLimitResult.limit,
-      remaining: rateLimitResult.remaining
+      remaining: rateLimitResult.remaining,
+      rateLimitData: rateLimitResult.rateLimitData
     };
   }
   

@@ -139,11 +139,17 @@ const Login = () => {
     setLoginSuccess(false);
     setLoginRateLimitData(null);
     
+    // Safety timeout to ensure loading state is reset
+    const loadingTimeout = setTimeout(() => {
+      setLoginLoading(false);
+    }, 30000); // 30 seconds timeout
+    
     try {
       const response = await authAPI.login(loginFormData);
       const { data } = response;
       
       if (data && data.token) {
+        clearTimeout(loadingTimeout);
         setLoginSuccess(true);
         rateLimitHandler.clearRetryTimer('login');
         const userData = {
@@ -163,15 +169,18 @@ const Login = () => {
       const errorInfo = handleApiError(err);
       console.log('Error info from handleApiError:', errorInfo);
       
+      // Always stop loading first and clear timeout
+      clearTimeout(loadingTimeout);
+      setLoginLoading(false);
+      
       if (errorInfo.type === 'rate_limit') {
-        setLoginRateLimitData(err.rateLimitData);
+        setLoginRateLimitData(errorInfo.rateLimitData);
         rateLimitHandler.setRetryTimer('login', errorInfo.retryTime);
-        setLoginError(errorInfo.message);
+        setLoginError(''); // Clear regular error when showing rate limit alert
       } else {
         setLoginError(errorInfo.message);
+        setLoginRateLimitData(null); // Clear rate limit data for regular errors
       }
-      
-      setLoginLoading(false);
     }
   };
 
@@ -214,11 +223,17 @@ const Login = () => {
     setRegisterSuccess(false);
     setRegisterRateLimitData(null);
     
+    // Safety timeout to ensure loading state is reset
+    const loadingTimeout = setTimeout(() => {
+      setRegisterLoading(false);
+    }, 30000); // 30 seconds timeout
+    
     try {
       const registrationData = { ...registerFormData };
       delete registrationData.confirmPassword;
       const response = await authAPI.register(registrationData);
       if (response.data) {
+        clearTimeout(loadingTimeout);
         setRegisterSuccess(true);
         rateLimitHandler.clearRetryTimer('register');
         
@@ -248,15 +263,18 @@ const Login = () => {
       const errorInfo = handleApiError(err);
       console.log('Registration error info from handleApiError:', errorInfo);
       
+      // Always stop loading first and clear timeout
+      clearTimeout(loadingTimeout);
+      setRegisterLoading(false);
+      
       if (errorInfo.type === 'rate_limit') {
-        setRegisterRateLimitData(err.rateLimitData);
+        setRegisterRateLimitData(errorInfo.rateLimitData);
         rateLimitHandler.setRetryTimer('register', errorInfo.retryTime);
-        setRegisterError(errorInfo.message);
+        setRegisterError(''); // Clear regular error when showing rate limit alert
       } else {
         setRegisterError(errorInfo.message);
+        setRegisterRateLimitData(null); // Clear rate limit data for regular errors
       }
-    } finally {
-      setRegisterLoading(false);
     }
   };
 
