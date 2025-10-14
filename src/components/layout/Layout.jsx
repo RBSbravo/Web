@@ -143,7 +143,6 @@ const Layout = memo(() => {
         onMenuClose={handleClose}
         onLogout={handleLogoutClick}
         onNotificationClick={handleNotificationClick}
-        onNavigate={handleNavigation}
         unreadCount={unreadCount}
       />
 

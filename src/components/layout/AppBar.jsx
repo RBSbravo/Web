@@ -34,7 +34,6 @@ const AppBar = memo(({
   onMenuClose, 
   onLogout, 
   onNotificationClick,
-  onNavigate,
   unreadCount = 0
 }) => {
   const muiTheme = useMuiTheme();
@@ -44,11 +43,6 @@ const AppBar = memo(({
     onMenuClose();
     onLogout();
   }, [onMenuClose, onLogout]);
-
-  const handleNavigation = useCallback((path) => {
-    onMenuClose();
-    onNavigate(path);
-  }, [onMenuClose, onNavigate]);
 
   const handleNotificationClick = useCallback(() => {
     onNotificationClick();
@@ -82,7 +76,7 @@ const AppBar = memo(({
           onClick={onSidebarToggle}
           sx={{ 
             mr: { xs: 1.5, sm: 2 },
-            display: { sm: 'none' },
+            display: { md: 'none' },
             borderRadius: 2,
             transition: 'background 0.2s',
             '&:hover, &:focus': {
@@ -153,7 +147,7 @@ const AppBar = memo(({
           variant="outlined"
           sx={{ 
             mr: { xs: 1, sm: 2 },
-            display: { xs: 'none', md: 'flex' },
+            display: { xs: 'none', lg: 'flex' },
             fontSize: { xs: '0.8rem', sm: '0.9rem' },
             borderRadius: 2,
             fontWeight: 500
