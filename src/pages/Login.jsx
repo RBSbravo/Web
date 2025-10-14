@@ -166,20 +166,36 @@ const Login = () => {
       console.log('Error response:', err.response);
       console.log('Error data:', err.response?.data);
       
-      const errorInfo = handleApiError(err);
-      console.log('Error info from handleApiError:', errorInfo);
-      
       // Always stop loading first and clear timeout
       clearTimeout(loadingTimeout);
       setLoginLoading(false);
       
-      if (errorInfo.type === 'rate_limit') {
-        setLoginRateLimitData(errorInfo.rateLimitData);
-        rateLimitHandler.setRetryTimer('login', errorInfo.retryTime);
-        setLoginError(''); // Clear regular error when showing rate limit alert
-      } else {
-        setLoginError(errorInfo.message);
-        setLoginRateLimitData(null); // Clear rate limit data for regular errors
+      try {
+        const errorInfo = handleApiError(err);
+        console.log('Error info from handleApiError:', errorInfo);
+        
+        if (errorInfo.type === 'rate_limit') {
+          // Ensure we have valid rate limit data
+          const rateLimitData = errorInfo.rateLimitData || {
+            error: 'Too many authentication attempts, please try again later',
+            retryAfter: '15 minutes',
+            limit: undefined,
+            remaining: undefined,
+            reset: undefined
+          };
+          
+          setLoginRateLimitData(rateLimitData);
+          rateLimitHandler.setRetryTimer('login', errorInfo.retryTime || 15 * 60 * 1000);
+          setLoginError(''); // Clear regular error when showing rate limit alert
+        } else {
+          setLoginError(errorInfo.message);
+          setLoginRateLimitData(null); // Clear rate limit data for regular errors
+        }
+      } catch (errorHandlingErr) {
+        console.error('Error handling failed:', errorHandlingErr);
+        // Fallback error handling
+        setLoginError('An error occurred. Please try again later.');
+        setLoginRateLimitData(null);
       }
     }
   };
@@ -260,20 +276,36 @@ const Login = () => {
       console.log('Registration error response:', err.response);
       console.log('Registration error data:', err.response?.data);
       
-      const errorInfo = handleApiError(err);
-      console.log('Registration error info from handleApiError:', errorInfo);
-      
       // Always stop loading first and clear timeout
       clearTimeout(loadingTimeout);
       setRegisterLoading(false);
       
-      if (errorInfo.type === 'rate_limit') {
-        setRegisterRateLimitData(errorInfo.rateLimitData);
-        rateLimitHandler.setRetryTimer('register', errorInfo.retryTime);
-        setRegisterError(''); // Clear regular error when showing rate limit alert
-      } else {
-        setRegisterError(errorInfo.message);
-        setRegisterRateLimitData(null); // Clear rate limit data for regular errors
+      try {
+        const errorInfo = handleApiError(err);
+        console.log('Registration error info from handleApiError:', errorInfo);
+        
+        if (errorInfo.type === 'rate_limit') {
+          // Ensure we have valid rate limit data
+          const rateLimitData = errorInfo.rateLimitData || {
+            error: 'Too many registration attempts, please try again later',
+            retryAfter: '15 minutes',
+            limit: undefined,
+            remaining: undefined,
+            reset: undefined
+          };
+          
+          setRegisterRateLimitData(rateLimitData);
+          rateLimitHandler.setRetryTimer('register', errorInfo.retryTime || 15 * 60 * 1000);
+          setRegisterError(''); // Clear regular error when showing rate limit alert
+        } else {
+          setRegisterError(errorInfo.message);
+          setRegisterRateLimitData(null); // Clear rate limit data for regular errors
+        }
+      } catch (errorHandlingErr) {
+        console.error('Registration error handling failed:', errorHandlingErr);
+        // Fallback error handling
+        setRegisterError('An error occurred. Please try again later.');
+        setRegisterRateLimitData(null);
       }
     }
   };

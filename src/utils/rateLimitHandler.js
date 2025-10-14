@@ -11,9 +11,9 @@ export class RateLimitHandler {
       const rateLimitData = {
         error: error.response.data?.error || 'Too many requests',
         retryAfter: error.response.data?.retryAfter || '15 minutes',
-        limit: error.response.headers['ratelimit-limit'],
-        remaining: error.response.headers['ratelimit-remaining'],
-        reset: error.response.headers['ratelimit-reset']
+        limit: error.response.headers?.['ratelimit-limit'] || undefined,
+        remaining: error.response.headers?.['ratelimit-remaining'] || undefined,
+        reset: error.response.headers?.['ratelimit-reset'] || undefined
       };
 
       this.rateLimitInfo = rateLimitData;
@@ -38,6 +38,10 @@ export class RateLimitHandler {
 
   // Calculate retry time in milliseconds
   calculateRetryTime(rateLimitData) {
+    if (!rateLimitData) {
+      return 15 * 60 * 1000; // Default 15 minutes
+    }
+    
     if (rateLimitData.reset) {
       const resetTime = parseInt(rateLimitData.reset) * 1000;
       const currentTime = Date.now();
@@ -45,13 +49,15 @@ export class RateLimitHandler {
     }
     
     // Fallback to parsing retryAfter text
-    const retryText = rateLimitData.retryAfter.toLowerCase();
-    if (retryText.includes('minute')) {
-      const minutes = parseInt(retryText.match(/\d+/)?.[0] || '15');
-      return minutes * 60 * 1000;
-    } else if (retryText.includes('hour')) {
-      const hours = parseInt(retryText.match(/\d+/)?.[0] || '1');
-      return hours * 60 * 60 * 1000;
+    if (rateLimitData.retryAfter) {
+      const retryText = rateLimitData.retryAfter.toLowerCase();
+      if (retryText.includes('minute')) {
+        const minutes = parseInt(retryText.match(/\d+/)?.[0] || '15');
+        return minutes * 60 * 1000;
+      } else if (retryText.includes('hour')) {
+        const hours = parseInt(retryText.match(/\d+/)?.[0] || '1');
+        return hours * 60 * 60 * 1000;
+      }
     }
     
     return 15 * 60 * 1000; // Default 15 minutes
@@ -71,14 +77,20 @@ export class RateLimitHandler {
 
   // Get user-friendly error message
   getUserFriendlyMessage(rateLimitData) {
+    if (!rateLimitData || !rateLimitData.error) {
+      return 'Too many requests. Please try again later.';
+    }
+    
     const retryTime = this.calculateRetryTime(rateLimitData);
     const formattedTime = this.formatRetryTime(retryTime);
     
-    if (rateLimitData.error.includes('authentication')) {
+    const errorMessage = rateLimitData.error.toLowerCase();
+    
+    if (errorMessage.includes('authentication')) {
       return `Too many login attempts. Please try again in ${formattedTime}.`;
-    } else if (rateLimitData.error.includes('registration')) {
+    } else if (errorMessage.includes('registration')) {
       return `Too many registration attempts. Please try again in ${formattedTime}.`;
-    } else if (rateLimitData.error.includes('password reset')) {
+    } else if (errorMessage.includes('password reset')) {
       return `Too many password reset attempts. Please try again in ${formattedTime}.`;
     }
     
