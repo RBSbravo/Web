@@ -96,7 +96,7 @@ const Tickets = () => {
   const [viewingTicket, setViewingTicket] = useState(null);
   const [editingTicket, setEditingTicket] = useState(null);
   const [editingTicketFiles, setEditingTicketFiles] = useState([]);
-  const [hasFileOperations, setHasFileOperations] = useState(false); // Track if file operations were performed
+  const [fileOperationsCount, setFileOperationsCount] = useState(0); // Track net file operations (+1 for upload, -1 for delete)
   const [ticketToDelete, setTicketToDelete] = useState(null);
   
   // Dialog states
@@ -284,8 +284,8 @@ const Tickets = () => {
     const formattedTicket = formatTicketData(ticket);
     setEditingTicket(formattedTicket);
     
-    // Reset file operations flag when opening edit dialog
-    setHasFileOperations(false);
+    // Reset file operations counter when opening edit dialog
+    setFileOperationsCount(0);
     
     // Load existing files for this ticket
     try {
@@ -394,8 +394,8 @@ const Tickets = () => {
         setEditingTicketFiles(prev => [...prev, tempFile]);
       }
       
-      // Mark that file operations have been performed
-      setHasFileOperations(true);
+      // Increment file operations counter (upload = +1)
+      setFileOperationsCount(prev => prev + 1);
     } catch (err) {
       console.error('Error uploading file:', err);
       setDialogError({ open: true, message: 'Failed to upload file.' });
@@ -415,8 +415,8 @@ const Tickets = () => {
         setEditingTicketFiles(prev => prev.filter(f => f.id !== fileId));
       }
       
-      // Mark that file operations have been performed
-      setHasFileOperations(true);
+      // Decrement file operations counter (delete = -1)
+      setFileOperationsCount(prev => prev - 1);
     } catch (err) {
       console.error('Error deleting file:', err);
       setDialogError({ open: true, message: 'Failed to delete file.' });
@@ -490,7 +490,7 @@ const Tickets = () => {
 
   const handleCloseEditDialog = useCallback(() => {
     setIsEditDialogOpen(false);
-    setHasFileOperations(false); // Reset file operations flag when closing dialog
+    setFileOperationsCount(0); // Reset file operations counter when closing dialog
   }, []);
 
   // Real-time updates
@@ -700,7 +700,7 @@ const Tickets = () => {
         users={users}
         onSubmit={handleUpdateTicket}
         loading={actionLoading}
-        hasFileOperations={hasFileOperations}
+        fileOperationsCount={fileOperationsCount}
       />
     </Box>
   );

@@ -677,7 +677,7 @@ export const EditTicketDialog = ({
   departments,
   onSubmit,
   loading,
-  hasFileOperations = false
+  fileOperationsCount = 0
 }) => {
   // Don't render if ticket is null
   if (!ticket) {
@@ -748,15 +748,15 @@ export const EditTicketDialog = ({
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label={hasFileOperations ? "Remarks (Required - File operations performed)" : "Remarks (Required for updates)"}
+                label={fileOperationsCount !== 0 ? "Remarks (Required - File operations performed)" : "Remarks (Required for updates)"}
                 name="remarks"
                 value={ticket?.remarks || ''}
                 onChange={onTicketChange}
                 multiline
                 rows={3}
                 required
-                error={hasFileOperations && !ticket?.remarks?.trim()}
-                helperText={hasFileOperations ? "Remarks are required when file operations are performed" : "Please provide remarks explaining the changes made to this ticket"}
+                error={fileOperationsCount !== 0 && !ticket?.remarks?.trim()}
+                helperText={fileOperationsCount !== 0 ? "Remarks are required when file operations are performed" : "Please provide remarks explaining the changes made to this ticket"}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
             </Grid>
@@ -973,13 +973,13 @@ export const EditTicketDialog = ({
       )}
     </DialogContent>
     <DialogActions sx={{ p: { xs: 1.5, sm: 2 } }}>
-      <Button onClick={onClose} disabled={hasFileOperations}>
+      <Button onClick={onClose} disabled={fileOperationsCount !== 0}>
         Cancel
       </Button>
       <Button 
         variant="contained"
         onClick={onSubmit}
-        disabled={loading || (hasFileOperations && !ticket?.remarks?.trim())}
+        disabled={loading || (fileOperationsCount !== 0 && !ticket?.remarks?.trim())}
         sx={{ minWidth: 100 }}
       >
         {loading ? <CircularProgress size={20} /> : 'Update Ticket'}
