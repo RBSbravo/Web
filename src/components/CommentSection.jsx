@@ -33,7 +33,14 @@ const CommentSection = ({ entityId, fetchComments, addComment, deleteComment, us
 
   const canDeleteComment = (comment) => {
     if (!user) return false;
-    // Only allow users to delete their own comments
+    
+    // Don't allow deletion of remarks-comments (update type comments)
+    if (comment.comment_type === 'update' || 
+        (comment.content && comment.content.startsWith('📝 **Task Updated**'))) {
+      return false;
+    }
+    
+    // Only allow users to delete their own regular comments
     return comment.author_id === user.id || 
            comment.authorId === user.id || 
            comment.userId === user.id ||
@@ -179,26 +186,27 @@ const CommentSection = ({ entityId, fetchComments, addComment, deleteComment, us
                           <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
                             Task Updated
                           </Typography>
-                          <Box
-                            sx={{
-                              color: theme.palette.info.main,
-                              backgroundColor: theme.palette.info.light,
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              borderLeft: `4px solid ${theme.palette.info.main}`,
-                              display: 'inline-block'
-                            }}
-                          >
-                            <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-                              Remarks:
-                            </Typography>
-                            <Typography variant="body2">
-                              {c.content
-                                .replace('📝 **Task Updated**', '')
-                                .replace(/^\n+/, '')
-                                .replace(/^Remarks:\n?/, '')}
-                            </Typography>
-                          </Box>
+                            <Box
+                              sx={{
+                                color: theme.palette.text.primary,
+                                backgroundColor: '#f5f5f5',
+                                padding: '8px 12px',
+                                borderRadius: '6px',
+                                borderLeft: `3px solid #e0e0e0`,
+                                display: 'inline-block',
+                                width: '100%'
+                              }}
+                            >
+                              <Typography variant="body2" sx={{ fontWeight: 'normal', mb: 0.5, color: theme.palette.text.secondary }}>
+                                Remarks:
+                              </Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 'normal' }}>
+                                {c.content
+                                  .replace('📝 **Task Updated**', '')
+                                  .replace(/^\n+/, '')
+                                  .replace(/^Remarks:\n?/, '')}
+                              </Typography>
+                            </Box>
                         </Box>
                         ) : c.comment_type === 'update' ? (
                           <Box>
@@ -207,18 +215,19 @@ const CommentSection = ({ entityId, fetchComments, addComment, deleteComment, us
                             </Typography>
                             <Box
                               sx={{
-                                color: theme.palette.info.main,
-                                backgroundColor: theme.palette.info.light,
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                borderLeft: `4px solid ${theme.palette.info.main}`,
-                                display: 'inline-block'
+                                color: theme.palette.text.primary,
+                                backgroundColor: '#f5f5f5',
+                                padding: '8px 12px',
+                                borderRadius: '6px',
+                                borderLeft: `3px solid #e0e0e0`,
+                                display: 'inline-block',
+                                width: '100%'
                               }}
                             >
-                              <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 'normal', mb: 0.5, color: theme.palette.text.secondary }}>
                                 Remarks:
                               </Typography>
-                              <Typography variant="body2">
+                              <Typography variant="body2" sx={{ fontWeight: 'normal' }}>
                                 {c.content.split('\n').slice(2).join('\n').replace('Remarks:\n', '')}
                               </Typography>
                             </Box>

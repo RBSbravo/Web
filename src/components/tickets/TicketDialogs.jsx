@@ -676,7 +676,8 @@ export const EditTicketDialog = ({
   onFileDelete,
   departments,
   onSubmit,
-  loading
+  loading,
+  hasFileOperations = false
 }) => (
   <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
     <DialogTitle>
@@ -741,14 +742,15 @@ export const EditTicketDialog = ({
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Remarks (Required for updates)"
+                label={hasFileOperations ? "Remarks (Required - File operations performed)" : "Remarks (Required for updates)"}
                 name="remarks"
                 value={ticket.remarks || ''}
                 onChange={onTicketChange}
                 multiline
                 rows={3}
                 required
-                helperText="Please provide remarks explaining the changes made to this ticket"
+                error={hasFileOperations && !ticket.remarks?.trim()}
+                helperText={hasFileOperations ? "Remarks are required when file operations are performed" : "Please provide remarks explaining the changes made to this ticket"}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
             </Grid>
@@ -965,13 +967,13 @@ export const EditTicketDialog = ({
       )}
     </DialogContent>
     <DialogActions sx={{ p: { xs: 1.5, sm: 2 } }}>
-      <Button onClick={onClose}>
+      <Button onClick={onClose} disabled={hasFileOperations}>
         Cancel
       </Button>
       <Button 
         variant="contained"
         onClick={onSubmit}
-        disabled={loading}
+        disabled={loading || (hasFileOperations && !ticket.remarks?.trim())}
         sx={{ minWidth: 100 }}
       >
         {loading ? <CircularProgress size={20} /> : 'Update Ticket'}

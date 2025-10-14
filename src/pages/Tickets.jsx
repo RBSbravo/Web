@@ -96,6 +96,7 @@ const Tickets = () => {
   const [viewingTicket, setViewingTicket] = useState(null);
   const [editingTicket, setEditingTicket] = useState(null);
   const [editingTicketFiles, setEditingTicketFiles] = useState([]);
+  const [hasFileOperations, setHasFileOperations] = useState(false); // Track if file operations were performed
   const [ticketToDelete, setTicketToDelete] = useState(null);
   
   // Dialog states
@@ -283,6 +284,9 @@ const Tickets = () => {
     const formattedTicket = formatTicketData(ticket);
     setEditingTicket(formattedTicket);
     
+    // Reset file operations flag when opening edit dialog
+    setHasFileOperations(false);
+    
     // Load existing files for this ticket
     try {
       const files = await loadTicketFiles(ticket.id);
@@ -389,6 +393,9 @@ const Tickets = () => {
         const tempFile = createTempFile(file, user);
         setEditingTicketFiles(prev => [...prev, tempFile]);
       }
+      
+      // Mark that file operations have been performed
+      setHasFileOperations(true);
     } catch (err) {
       console.error('Error uploading file:', err);
       setDialogError({ open: true, message: 'Failed to upload file.' });
@@ -407,6 +414,9 @@ const Tickets = () => {
         // For temp files, just remove from state
         setEditingTicketFiles(prev => prev.filter(f => f.id !== fileId));
       }
+      
+      // Mark that file operations have been performed
+      setHasFileOperations(true);
     } catch (err) {
       console.error('Error deleting file:', err);
       setDialogError({ open: true, message: 'Failed to delete file.' });
@@ -480,6 +490,7 @@ const Tickets = () => {
 
   const handleCloseEditDialog = useCallback(() => {
     setIsEditDialogOpen(false);
+    setHasFileOperations(false); // Reset file operations flag when closing dialog
   }, []);
 
   // Real-time updates
@@ -689,6 +700,7 @@ const Tickets = () => {
         users={users}
         onSubmit={handleUpdateTicket}
         loading={actionLoading}
+        hasFileOperations={hasFileOperations}
       />
     </Box>
   );
