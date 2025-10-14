@@ -12,7 +12,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
@@ -26,6 +28,10 @@ import { useTasks } from '../hooks/useTasks';
 import PageHeader from '../components/layout/PageHeader';
 
 const Tasks = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  
   // Custom hook handles all task-related state and operations
   const {
     filteredTasks,
@@ -160,36 +166,40 @@ const Tasks = () => {
               ) : (
                 <>
                   {/* Table view for desktop */}
-                  <TaskTableView
-                    tasks={filteredTasks}
-                    departmentUsers={departmentUsers}
-                    canUpdateTask={canUpdateTask}
-                    selectedTasks={selectedTasks}
-                    updatingStatus={updatingStatus}
-                    updatingPriority={updatingPriority}
-                    onSelectTask={selectTask}
-                    onViewDetails={handleViewDetails}
-                    onEditTask={handleEditTask}
-                    onDeleteTask={handleDeleteTask}
-                    onUpdateStatus={updateTaskStatus}
-                    onUpdatePriority={updateTaskPriority}
-                  />
+                  <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                    <TaskTableView
+                      tasks={filteredTasks}
+                      departmentUsers={departmentUsers}
+                      canUpdateTask={canUpdateTask}
+                      selectedTasks={selectedTasks}
+                      updatingStatus={updatingStatus}
+                      updatingPriority={updatingPriority}
+                      onSelectTask={selectTask}
+                      onViewDetails={handleViewDetails}
+                      onEditTask={handleEditTask}
+                      onDeleteTask={handleDeleteTask}
+                      onUpdateStatus={updateTaskStatus}
+                      onUpdatePriority={updateTaskPriority}
+                    />
+                  </Box>
                   
-                  {/* Card view for mobile */}
-                  <TaskCardView
-                    tasks={filteredTasks}
-                    departmentUsers={departmentUsers}
-                    canUpdateTask={canUpdateTask}
-                    selectedTasks={selectedTasks}
-                    updatingStatus={updatingStatus}
-                    updatingPriority={updatingPriority}
-                    onSelectTask={selectTask}
-                    onViewDetails={handleViewDetails}
-                    onEditTask={handleEditTask}
-                    onDeleteTask={handleDeleteTask}
-                    onUpdateStatus={updateTaskStatus}
-                    onUpdatePriority={updateTaskPriority}
-                  />
+                  {/* Card view for mobile/tablet */}
+                  <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                    <TaskCardView
+                      tasks={filteredTasks}
+                      departmentUsers={departmentUsers}
+                      canUpdateTask={canUpdateTask}
+                      selectedTasks={selectedTasks}
+                      updatingStatus={updatingStatus}
+                      updatingPriority={updatingPriority}
+                      onSelectTask={selectTask}
+                      onViewDetails={handleViewDetails}
+                      onEditTask={handleEditTask}
+                      onDeleteTask={handleDeleteTask}
+                      onUpdateStatus={updateTaskStatus}
+                      onUpdatePriority={updateTaskPriority}
+                    />
+                  </Box>
                 </>
               )}
                                   </Box>

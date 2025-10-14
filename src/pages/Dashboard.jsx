@@ -173,7 +173,7 @@ const Dashboard = () => {
         {backendStats.map((stat) => {
           const meta = statCardMeta[stat.key] || {};
           return (
-            <Grid item xs={12} sm={6} md={3} key={stat.key}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={stat.key}>
               <Card sx={{
                 height: '100%',
                 borderRadius: 4,
@@ -199,11 +199,36 @@ const Dashboard = () => {
                   }}>
                     {meta.icon}
                   </Avatar>
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 700, mb: 0.5, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography 
+                      variant="subtitle2" 
+                      color="text.secondary" 
+                      sx={{ 
+                        fontWeight: 700, 
+                        mb: 0.5, 
+                        letterSpacing: 0.3, 
+                        textTransform: 'uppercase',
+                        fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+                        lineHeight: 1.2,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
                       {stat.label}
                     </Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '2rem', sm: '2.2rem' }, color: 'text.primary', lineHeight: 1 }}>
+                    <Typography 
+                      variant="h4" 
+                      sx={{ 
+                        fontWeight: 800, 
+                        fontSize: { xs: '1.8rem', sm: '2rem', md: '2.2rem' }, 
+                        color: 'text.primary', 
+                        lineHeight: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
                       {dashboardData[stat.key]}
                     </Typography>
                   </Box>
@@ -223,7 +248,7 @@ const Dashboard = () => {
           </Box>
           <Grid container spacing={3} sx={{ mb: 4 }}>
             {dashboardData.recentTickets && (
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={12} md={6}>
                 <Card sx={{
                   borderRadius: 4,
                   height: '100%',
@@ -278,7 +303,7 @@ const Dashboard = () => {
               </Grid>
             )}
             {dashboardData.recentTasks && (
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={12} md={6}>
                 <Card sx={{ borderRadius: 3, boxShadow: 2, height: '100%' }}>
                   <CardContent>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, letterSpacing: 0.5, color: 'secondary.main' }}>Recent Tasks</Typography>

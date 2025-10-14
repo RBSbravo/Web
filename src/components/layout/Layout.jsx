@@ -33,6 +33,7 @@ const Layout = memo(() => {
 
   // Responsive breakpoints
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(muiTheme.breakpoints.between('sm', 'md'));
 
   // Memoized event handlers
   const handleMenu = useCallback((event) => {
@@ -97,10 +98,10 @@ const Layout = memo(() => {
 
   const handleNavigation = useCallback((path) => {
     navigate(path);
-    if (isMobile && sidebarOpen) {
+    if ((isMobile || isTablet) && sidebarOpen) {
       setSidebarOpen(false);
     }
-  }, [navigate, sidebarOpen, isMobile]);
+  }, [navigate, sidebarOpen, isMobile, isTablet]);
 
   useEffect(() => {
     // Fetch unread count on mount
@@ -155,7 +156,7 @@ const Layout = memo(() => {
         onNavigate={handleNavigation}
       />
 
-      {/* Mobile Sidebar */}
+      {/* Mobile/Tablet Sidebar */}
       <Sidebar
         variant="temporary"
         open={sidebarOpen}
@@ -177,7 +178,8 @@ const Layout = memo(() => {
           minHeight: 0,
           width: { 
             xs: '100%', 
-            sm: `calc(100% - ${DRAWER_WIDTH}px)` 
+            sm: isTablet ? '100%' : `calc(100% - ${DRAWER_WIDTH}px)`,
+            md: `calc(100% - ${DRAWER_WIDTH}px)`
           },
           backgroundColor: 'background.default',
         }}

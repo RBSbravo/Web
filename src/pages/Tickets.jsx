@@ -59,6 +59,7 @@ const initialTicketState = {
 const Tickets = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const { user } = useUser();
   const { id: ticketId } = useParams();
   const navigate = useNavigate();
@@ -594,21 +595,23 @@ const Tickets = () => {
               ) : (
                 <>
                   {/* Desktop Table */}
-                  <TicketTable
-                    tickets={filteredTickets}
-                    departments={departments}
-                    users={users}
-                    activeTab={activeTab}
-                    onViewTicket={handleViewTicket}
-                    onEditTicket={handleEditTicket}
-                    onDeleteTicket={handleDelete}
-                    getStatusColor={getStatusColor}
-                    getStatusIcon={getStatusIcon}
-                    getPriorityColor={getPriorityColor}
-                    getPriorityIcon={getPriorityIcon}
-                  />
+                  <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                    <TicketTable
+                      tickets={filteredTickets}
+                      departments={departments}
+                      users={users}
+                      activeTab={activeTab}
+                      onViewTicket={handleViewTicket}
+                      onEditTicket={handleEditTicket}
+                      onDeleteTicket={handleDelete}
+                      getStatusColor={getStatusColor}
+                      getStatusIcon={getStatusIcon}
+                      getPriorityColor={getPriorityColor}
+                      getPriorityIcon={getPriorityIcon}
+                    />
+                  </Box>
 
-                  {/* Mobile Cards */}
+                  {/* Mobile/Tablet Cards */}
                   <Box sx={{ display: { xs: 'block', md: 'none' } }}>
                     <Grid container spacing={2}>
                       {filteredTickets.map((ticket) => (

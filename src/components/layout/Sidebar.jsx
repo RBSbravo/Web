@@ -62,7 +62,7 @@ const Sidebar = memo(({
           boxShadow: '2px 0 12px rgba(0,0,0,0.1)',
           backgroundColor: muiTheme.palette.mode === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.common.white,
         },
-        display: isMobileDrawer ? { xs: 'block', sm: 'none' } : { xs: 'none', sm: 'block' },
+        display: isMobileDrawer ? { xs: 'block', md: 'none' } : { xs: 'none', sm: 'none', md: 'block' },
       }}
     >
       <Toolbar />
