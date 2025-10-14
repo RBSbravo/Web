@@ -175,16 +175,8 @@ const Login = () => {
         console.log('Error info from handleApiError:', errorInfo);
         
         if (errorInfo.type === 'rate_limit') {
-          // Ensure we have valid rate limit data
-          const rateLimitData = errorInfo.rateLimitData || {
-            error: 'Too many authentication attempts, please try again later',
-            retryAfter: '15 minutes',
-            limit: undefined,
-            remaining: undefined,
-            reset: undefined
-          };
-          
-          setLoginRateLimitData(rateLimitData);
+          // Use the rate limit data from errorInfo (like desktop app)
+          setLoginRateLimitData(errorInfo.rateLimitData);
           rateLimitHandler.setRetryTimer('login', errorInfo.retryTime || 15 * 60 * 1000);
           setLoginError(''); // Clear regular error when showing rate limit alert
         } else {
@@ -193,7 +185,7 @@ const Login = () => {
         }
       } catch (errorHandlingErr) {
         console.error('Error handling failed:', errorHandlingErr);
-        // Fallback error handling
+        // Fallback error handling (like desktop app)
         setLoginError('An error occurred. Please try again later.');
         setLoginRateLimitData(null);
       }
@@ -285,16 +277,8 @@ const Login = () => {
         console.log('Registration error info from handleApiError:', errorInfo);
         
         if (errorInfo.type === 'rate_limit') {
-          // Ensure we have valid rate limit data
-          const rateLimitData = errorInfo.rateLimitData || {
-            error: 'Too many registration attempts, please try again later',
-            retryAfter: '15 minutes',
-            limit: undefined,
-            remaining: undefined,
-            reset: undefined
-          };
-          
-          setRegisterRateLimitData(rateLimitData);
+          // Use the rate limit data from errorInfo (like desktop app)
+          setRegisterRateLimitData(errorInfo.rateLimitData);
           rateLimitHandler.setRetryTimer('register', errorInfo.retryTime || 15 * 60 * 1000);
           setRegisterError(''); // Clear regular error when showing rate limit alert
         } else {
@@ -303,7 +287,7 @@ const Login = () => {
         }
       } catch (errorHandlingErr) {
         console.error('Registration error handling failed:', errorHandlingErr);
-        // Fallback error handling
+        // Fallback error handling (like desktop app)
         setRegisterError('An error occurred. Please try again later.');
         setRegisterRateLimitData(null);
       }

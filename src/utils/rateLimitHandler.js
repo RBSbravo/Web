@@ -7,13 +7,19 @@ export class RateLimitHandler {
 
   // Handle rate limit error from API response
   handleRateLimitError(error) {
-    if (error.response?.status === 429) {
+    // Check for rate limit in multiple ways (like desktop app)
+    const isRateLimited = error.response?.status === 429 || 
+                         error.message?.includes('429') || 
+                         error.message?.includes('Too many requests') ||
+                         error.message?.includes('rate limit');
+    
+    if (isRateLimited) {
       const rateLimitData = {
-        error: error.response.data?.error || 'Too many requests',
-        retryAfter: error.response.data?.retryAfter || '15 minutes',
-        limit: error.response.headers?.['ratelimit-limit'] || undefined,
-        remaining: error.response.headers?.['ratelimit-remaining'] || undefined,
-        reset: error.response.headers?.['ratelimit-reset'] || undefined
+        error: error.response?.data?.error || error.message || 'Too many requests',
+        retryAfter: error.response?.data?.retryAfter || '15 minutes',
+        limit: error.response?.headers?.['ratelimit-limit'] || null,
+        remaining: error.response?.headers?.['ratelimit-remaining'] || null,
+        reset: error.response?.headers?.['ratelimit-reset'] || null
       };
 
       this.rateLimitInfo = rateLimitData;
@@ -48,7 +54,7 @@ export class RateLimitHandler {
       return Math.max(0, resetTime - currentTime);
     }
     
-    // Fallback to parsing retryAfter text
+    // Fallback to parsing retryAfter text (like desktop app)
     if (rateLimitData.retryAfter) {
       const retryText = rateLimitData.retryAfter.toLowerCase();
       if (retryText.includes('minute')) {
@@ -86,9 +92,10 @@ export class RateLimitHandler {
     
     const errorMessage = rateLimitData.error.toLowerCase();
     
-    if (errorMessage.includes('authentication')) {
+    // Check for authentication/login errors (like desktop app)
+    if (errorMessage.includes('authentication') || errorMessage.includes('login')) {
       return `Too many login attempts. Please try again in ${formattedTime}.`;
-    } else if (errorMessage.includes('registration')) {
+    } else if (errorMessage.includes('registration') || errorMessage.includes('register')) {
       return `Too many registration attempts. Please try again in ${formattedTime}.`;
     } else if (errorMessage.includes('password reset')) {
       return `Too many password reset attempts. Please try again in ${formattedTime}.`;
