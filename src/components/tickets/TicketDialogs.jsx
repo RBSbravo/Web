@@ -678,7 +678,13 @@ export const EditTicketDialog = ({
   onSubmit,
   loading,
   hasFileOperations = false
-}) => (
+}) => {
+  // Don't render if ticket is null
+  if (!ticket) {
+    return null;
+  }
+  
+  return (
   <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
     <DialogTitle>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -744,12 +750,12 @@ export const EditTicketDialog = ({
                 fullWidth
                 label={hasFileOperations ? "Remarks (Required - File operations performed)" : "Remarks (Required for updates)"}
                 name="remarks"
-                value={ticket.remarks || ''}
+                value={ticket?.remarks || ''}
                 onChange={onTicketChange}
                 multiline
                 rows={3}
                 required
-                error={hasFileOperations && !ticket.remarks?.trim()}
+                error={hasFileOperations && !ticket?.remarks?.trim()}
                 helperText={hasFileOperations ? "Remarks are required when file operations are performed" : "Please provide remarks explaining the changes made to this ticket"}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
@@ -973,11 +979,12 @@ export const EditTicketDialog = ({
       <Button 
         variant="contained"
         onClick={onSubmit}
-        disabled={loading || (hasFileOperations && !ticket.remarks?.trim())}
+        disabled={loading || (hasFileOperations && !ticket?.remarks?.trim())}
         sx={{ minWidth: 100 }}
       >
         {loading ? <CircularProgress size={20} /> : 'Update Ticket'}
       </Button>
     </DialogActions>
   </Dialog>
-);
+  );
+};
