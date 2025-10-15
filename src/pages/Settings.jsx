@@ -721,7 +721,7 @@ const Settings = () => {
                       </Typography>
                       <Box sx={{ pl: 2 }}>
                         <Typography variant="body2" sx={{ mb: 1 }}>
-                          • <strong>Total Tickets</strong> - All tickets you've created
+                          • <strong>Total Tickets</strong> - All Department tickets received.
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
                           • <strong>Open Tickets</strong> - Currently active tickets
@@ -733,7 +733,7 @@ const Settings = () => {
                           • <strong>Overdue Tickets</strong> - Tickets past due date
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
-                          • <strong>Total Tasks</strong> - All assigned tasks
+                          • <strong>Total Tasks</strong> - All Department tasks
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
                           • <strong>Completed Tasks</strong> - Finished tasks
