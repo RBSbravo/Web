@@ -21,6 +21,9 @@ import {
   Avatar,
   InputAdornment,
   CircularProgress,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import {
   Security as SecurityIcon,
@@ -61,6 +64,7 @@ import {
   TrendingDown as TrendingDownIcon,
   Speed as SpeedIcon,
   EmojiEvents as TrophyIcon,
+  ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
@@ -632,15 +636,16 @@ const Settings = () => {
               </Typography>
 
               {/* Navigation Overview */}
-              <Card sx={{ mb: 4, borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <MenuIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Navigation & Layout
                     </Typography>
                   </Box>
-                  
+                </AccordionSummary>
+                <AccordionDetails>
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
                       <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: 'primary.main' }}>
@@ -697,19 +702,20 @@ const Settings = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
 
               {/* Dashboard Guide */}
-              <Card sx={{ mb: 4, borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <DashboardIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Dashboard Overview
                     </Typography>
                   </Box>
-                  
+                </AccordionSummary>
+                <AccordionDetails>
                   <Typography variant="body1" sx={{ mb: 3 }}>
                     The dashboard provides a comprehensive overview of your work status and performance metrics.
                   </Typography>
@@ -767,19 +773,20 @@ const Settings = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
 
               {/* Tasks Management */}
-              <Card sx={{ mb: 4, borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <AssignmentIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Tasks Management
                     </Typography>
                   </Box>
-                  
+                </AccordionSummary>
+                <AccordionDetails>
                   <Typography variant="body1" sx={{ mb: 3 }}>
                     Create, assign, and track tasks efficiently with our comprehensive task management system.
                   </Typography>
@@ -867,18 +874,20 @@ const Settings = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
 
               {/* Tickets Management */}
-              <Card sx={{ mb: 4, borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <ConfirmationNumberIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Tickets Management
                     </Typography>
                   </Box>
+                </AccordionSummary>
+                <AccordionDetails>
                   
                   <Typography variant="body1" sx={{ mb: 3 }}>
                     Submit, track, and manage support tickets with comprehensive workflow management.
@@ -1008,18 +1017,20 @@ const Settings = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
 
               {/* File Management */}
-              <Card sx={{ mb: 4, borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <FileUploadIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       File Management
                     </Typography>
                   </Box>
+                </AccordionSummary>
+                <AccordionDetails>
                   
                   <Typography variant="body1" sx={{ mb: 3 }}>
                     Upload, manage, and organize files for tasks and tickets efficiently.
@@ -1072,19 +1083,20 @@ const Settings = () => {
                       <strong>Important:</strong> Only PDF and image files are accepted for uploads. When uploading or deleting files during task/ticket editing, you must provide remarks explaining the changes. The cancel button will be disabled until you complete the update with remarks.
                     </Typography>
                   </Alert>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
 
               {/* Comments & Communication */}
-              <Card sx={{ mb: 4, borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <CommentIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Comments & Communication
                     </Typography>
                   </Box>
-                  
+                </AccordionSummary>
+                <AccordionDetails>
                   <Typography variant="body1" sx={{ mb: 3 }}>
                     Keep track of progress and communicate effectively with your team through comments and updates.
                   </Typography>
@@ -1139,19 +1151,20 @@ const Settings = () => {
                       <strong>Note:</strong> Remarks comments (system-generated updates) cannot be deleted. Only regular comments can be removed by their authors.
                     </Typography>
                   </Alert>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
 
               {/* Responsive Design */}
-              <Card sx={{ mb: 4, borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <SettingsIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Responsive Design Features
                     </Typography>
                   </Box>
-                  
+                </AccordionSummary>
+                <AccordionDetails>
                   <Typography variant="body1" sx={{ mb: 3 }}>
                     The application is fully responsive and optimized for all device types.
                   </Typography>
@@ -1217,18 +1230,20 @@ const Settings = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
 
               {/* Tips & Best Practices */}
-              <Card sx={{ mb: 4, borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <StarIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Tips & Best Practices
                     </Typography>
                   </Box>
+                </AccordionSummary>
+                <AccordionDetails>
                   
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
@@ -1283,19 +1298,20 @@ const Settings = () => {
                       </Box>
                     </Grid>
                   </Grid>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
 
               {/* Support Information */}
-              <Card sx={{ borderRadius: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Accordion sx={{ mb: 3 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <HelpIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Need Help?
                     </Typography>
                   </Box>
-                  
+                </AccordionSummary>
+                <AccordionDetails>
                   <Typography variant="body1" sx={{ mb: 3 }}>
                     If you need additional assistance or have questions not covered in this guide, please contact your system administrator or IT support team.
                   </Typography>
@@ -1347,12 +1363,12 @@ const Settings = () => {
                       <strong>Thank you for using the Ticketing and Task Management System!</strong> This guide is regularly updated to reflect new features and improvements.
                     </Typography>
                   </Alert>
-                </CardContent>
-              </Card>
+                </AccordionDetails>
+              </Accordion>
             </Box>
           </TabPanel>
-                </CardContent>
-              </Card>
+        </CardContent>
+      </Card>
 
       {/* Global Save button removed: actions are handled inline for better UX */}
     </Box>
