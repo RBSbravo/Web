@@ -72,19 +72,26 @@ export const useTasks = () => {
 
   // Load pending tickets
   const loadPendingTickets = useCallback(async () => {
-    if (user?.departmentId) {
-      try {
-        const res = await ticketAPI.getAll({ 
-          departmentId: user.departmentId, 
-          status: 'pending' 
-        });
-        setPendingTickets(Array.isArray(res.data) ? res.data : (res.data.tickets || []));
-      } catch (error) {
-        console.error('Failed to load pending tickets:', error);
-        setPendingTickets([]);
-      }
+    try {
+      // Use the same logic as the received tab - get tickets assigned to the user
+      const res = await ticketAPI.getAssignedTickets();
+      const assignedTickets = Array.isArray(res.data) ? res.data : (res.data || []);
+      
+      console.log('Assigned tickets loaded:', assignedTickets.length, assignedTickets);
+      
+      // Filter for pending status only (handle different case variations)
+      const pendingTickets = assignedTickets.filter(ticket => {
+        const status = ticket.status?.toLowerCase();
+        return status === 'pending';
+      });
+      
+      console.log('Pending tickets filtered:', pendingTickets.length, pendingTickets);
+      setPendingTickets(pendingTickets);
+    } catch (error) {
+      console.error('Failed to load pending tickets:', error);
+      setPendingTickets([]);
     }
-  }, [user?.departmentId]);
+  }, []);
 
   // Initialize data
   useEffect(() => {

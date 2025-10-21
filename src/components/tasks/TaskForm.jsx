@@ -51,6 +51,8 @@ const TaskForm = ({
   useEffect(() => {
     if (!open) return;
 
+    console.log('TaskForm opened with pendingTickets:', pendingTickets);
+
     if (initialData && mode === 'edit') {
       setFormData({
         ...getInitialTaskFormData(),
