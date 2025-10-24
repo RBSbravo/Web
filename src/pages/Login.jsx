@@ -26,7 +26,7 @@ import {
   DialogContent,
   DialogActions,
   Link,
-  Checkbox
+  Checkbox,
 } from '@mui/material';
 import {
   Visibility,

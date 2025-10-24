@@ -6,13 +6,29 @@ export default UserContext;
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Check which storage to use
-    const authStorage = localStorage.getItem('auth_storage');
-    const storage = authStorage === 'local' ? localStorage : sessionStorage;
+    // Robust detection of which storage holds the auth info.
+    // Prefer explicit 'auth_storage' flag; fall back to checking tokens directly.
+    const explicitStorage = localStorage.getItem('auth_storage') || sessionStorage.getItem('auth_storage');
+    let storage;
+
+    if (explicitStorage === 'local') {
+      storage = localStorage;
+    } else if (explicitStorage === 'session') {
+      storage = sessionStorage;
+    } else {
+      // No explicit flag: prefer localStorage if it has a token/user, otherwise sessionStorage
+      if (localStorage.getItem('token') || localStorage.getItem('user')) {
+        storage = localStorage;
+      } else if (sessionStorage.getItem('token') || sessionStorage.getItem('user')) {
+        storage = sessionStorage;
+      } else {
+        storage = localStorage; // default
+      }
+    }
 
     const storedUser = storage.getItem('user');
     const token = storage.getItem('token');
-    
+
     if (storedUser && token) {
       try {
         const parsedUser = JSON.parse(storedUser);
@@ -24,6 +40,7 @@ export const UserProvider = ({ children }) => {
         return null;
       }
     }
+
     return null;
   });
 
@@ -37,14 +54,6 @@ export const UserProvider = ({ children }) => {
     };
     
     setUser(userWithAuth);
-    
-    // Clear both storages first to prevent any conflicts
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('auth_storage');
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('auth_storage');
     
     // Use appropriate storage based on remember me choice
     const storage = rememberMe ? localStorage : sessionStorage;
