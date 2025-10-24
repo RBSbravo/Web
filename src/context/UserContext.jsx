@@ -38,6 +38,14 @@ export const UserProvider = ({ children }) => {
     
     setUser(userWithAuth);
     
+    // Clear both storages first to prevent any conflicts
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('auth_storage');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('auth_storage');
+    
     // Use appropriate storage based on remember me choice
     const storage = rememberMe ? localStorage : sessionStorage;
     storage.setItem('user', JSON.stringify(userWithAuth));

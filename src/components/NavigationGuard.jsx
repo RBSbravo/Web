@@ -20,19 +20,30 @@ const NavigationGuard = ({ children }) => {
     setError(null);
 
     try {
-      // Get user from localStorage
-      const storedUser = localStorage.getItem('user');
-      const token = localStorage.getItem('token');
+      // Check which storage to use
+      const authStorage = localStorage.getItem('auth_storage');
+      const storage = authStorage === 'local' ? localStorage : sessionStorage;
+
+      // Get user from appropriate storage
+      const storedUser = storage.getItem('user');
+      const token = storage.getItem('token');
 
       if (!storedUser || !token) {
-        // No authentication data, redirect to login
-        if (location.pathname !== '/login') {
-        navigate('/login', { 
-          replace: true,
-          state: { from: location.pathname }
-        });
+        // Also check the other storage as fallback
+        const fallbackStorage = authStorage === 'local' ? sessionStorage : localStorage;
+        const fallbackUser = fallbackStorage.getItem('user');
+        const fallbackToken = fallbackStorage.getItem('token');
+
+        if (!fallbackUser || !fallbackToken) {
+          // No authentication data in either storage, redirect to login
+          if (location.pathname !== '/login') {
+            navigate('/login', { 
+              replace: true,
+              state: { from: location.pathname }
+            });
+          }
+          return;
         }
-        return;
       }
 
       // Optionally, you can add more checks here if needed
@@ -52,6 +63,18 @@ const NavigationGuard = ({ children }) => {
 
   useEffect(() => {
     checkAuthentication();
+  }, [checkAuthentication]);
+
+  // Re-check authentication when storage changes
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'user' || e.key === 'token' || e.key === 'auth_storage') {
+        checkAuthentication();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [checkAuthentication]);
 
   if (loading) {
