@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo, useCallback, useEffect } from 'react';
+import React, { createContext, useState, useMemo, useCallback } from 'react';
 import { authAPI } from '../services/api';
 
 const UserContext = createContext();
@@ -6,24 +6,28 @@ export default UserContext;
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Initialize user state from localStorage immediately
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
+    // Check which storage to use
+    const authStorage = localStorage.getItem('auth_storage');
+    const storage = authStorage === 'local' ? localStorage : sessionStorage;
+
+    const storedUser = storage.getItem('user');
+    const token = storage.getItem('token');
     
     if (storedUser && token) {
       try {
         const parsedUser = JSON.parse(storedUser);
         return { ...parsedUser, isAuthenticated: true };
       } catch (error) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        storage.removeItem('user');
+        storage.removeItem('token');
+        storage.removeItem('auth_storage');
         return null;
       }
     }
     return null;
   });
 
-  const login = useCallback(async (userData) => {
+  const login = useCallback(async (userData, rememberMe = false) => {
     // If userData has a .user property, use it; otherwise, use userData directly
     const userObj = userData.user ? userData.user : userData;
     
@@ -33,10 +37,14 @@ export const UserProvider = ({ children }) => {
     };
     
     setUser(userWithAuth);
-    localStorage.setItem('user', JSON.stringify(userWithAuth));
+    
+    // Use appropriate storage based on remember me choice
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem('user', JSON.stringify(userWithAuth));
+    storage.setItem('auth_storage', rememberMe ? 'local' : 'session');
     
     if (userData.token) {
-    localStorage.setItem('token', userData.token);
+      storage.setItem('token', userData.token);
     }
   }, []);
 
@@ -45,23 +53,28 @@ export const UserProvider = ({ children }) => {
       // Call logout endpoint to invalidate token
       await authAPI.logout();
     } finally {
-    setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+      // Clear both storage types and state
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('auth_storage');
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('auth_storage');
+      setUser(null);
     }
   }, []);
 
   const updateUser = useCallback(async (updates) => {
-    try {
-      // Update user profile in backend
-      const { data } = await authAPI.updateProfile(updates);
-      if (data) {
-        const updatedUser = { ...user, ...data, isAuthenticated: true };
-        setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
-    } catch (error) {
-      throw error;
+    // Update user profile in backend
+    const { data } = await authAPI.updateProfile(updates);
+    if (data) {
+      const updatedUser = { ...user, ...data, isAuthenticated: true };
+      setUser(updatedUser);
+      
+      // Update the storage that was used for login
+      const authStorage = localStorage.getItem('auth_storage');
+      const storage = authStorage === 'local' ? localStorage : sessionStorage;
+      storage.setItem('user', JSON.stringify(updatedUser));
     }
   }, [user]);
 

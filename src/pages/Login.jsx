@@ -25,7 +25,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Link
+  Link,
+  Checkbox
 } from '@mui/material';
 import {
   Visibility,
@@ -61,6 +62,7 @@ const Login = () => {
   const [loginFormData, setLoginFormData] = useState({
     email: '',
     password: '',
+    rememberMe: false,
   });
 
   // Register state
@@ -156,7 +158,7 @@ const Login = () => {
           user: data.user,
           token: data.token
         };
-        login(userData);
+        login(userData, loginFormData.rememberMe);
         setTimeout(() => { navigate('/app/dashboard'); }, 1000);
       } else {
         throw new Error('Invalid response from server');
@@ -438,7 +440,24 @@ const Login = () => {
                       ),
                     }}
                 />
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1, mb: 2 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center', 
+                  mt: 1, 
+                  mb: 2 
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Checkbox
+                      checked={loginFormData.rememberMe}
+                      onChange={(e) => handleLoginChange({ target: { name: 'rememberMe', value: e.target.checked } })}
+                      color="primary"
+                      size="small"
+                    />
+                    <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                      Remember me
+                    </Typography>
+                  </Box>
                   <Link 
                     component="button"
                     type="button"
