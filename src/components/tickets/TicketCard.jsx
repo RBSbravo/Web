@@ -7,9 +7,7 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  Grid,
-  useTheme,
-  useMediaQuery
+  Grid
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -35,8 +33,6 @@ const TicketCard = ({
   getStatusColor,
   getTicketFiles,
 }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [resolvedUsers, setResolvedUsers] = useState({});
 
   // Resolve missing user details for forwarded users (same logic as TicketTable)
@@ -84,9 +80,8 @@ const TicketCard = ({
     return idStr;
   };
 
-  if (!isMobile) {
-    return null; // Desktop uses table instead
-  }
+  // This component is used for both mobile and tablet views
+  // Desktop uses table instead (handled by parent component)
 
   return (
     <Card sx={{ borderRadius: 3, boxShadow: 2, overflow: 'hidden' }}>
