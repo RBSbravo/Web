@@ -20,16 +20,16 @@ export const navigationItems = [
     icon: DashboardIcon,
   },
   {
-    text: 'Tasks',
-    iconName: 'Task',
-    path: '/app/tasks',
-    icon: TaskIcon,
-  },
-  {
     text: 'Tickets',
     iconName: 'Ticket',
     path: '/app/tickets',
     icon: TicketIcon,
+  },
+  {
+    text: 'Tasks',
+    iconName: 'Task',
+    path: '/app/tasks',
+    icon: TaskIcon,
   },
   {
     text: 'Kanban Board',

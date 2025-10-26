@@ -656,10 +656,10 @@ const Settings = () => {
                           • <strong>Dashboard</strong> - Overview of your tasks, tickets, and performance metrics
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
-                          • <strong>Tasks</strong> - Create, manage, and track your assigned tasks
+                          • <strong>Tickets</strong> - Submit, view, and manage support tickets
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
-                          • <strong>Tickets</strong> - Submit, view, and manage support tickets
+                          • <strong>Tasks</strong> - Create, manage, and track your assigned tasks
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
                           • <strong>Kanban Board</strong> - Visual task management with drag-and-drop

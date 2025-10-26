@@ -700,8 +700,10 @@ export const EditTicketDialog = ({
     return null;
   }
   
-  // Determine if this is a received ticket (tab 1) - restrict editing to status only
+  // Determine if this is a received ticket (tab 1) or forwarded ticket (tab 2) - restrict editing to status only
   const isReceivedTicket = activeTab === 1;
+  const isForwardedTicket = activeTab === 2;
+  const shouldRestrictEditing = isReceivedTicket || isForwardedTicket;
   
   return (
   <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -723,7 +725,7 @@ export const EditTicketDialog = ({
                 value={ticket.title || ''}
                 onChange={onTicketChange}
                 required
-                disabled={isReceivedTicket}
+                disabled={shouldRestrictEditing}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
             </Grid>
@@ -737,7 +739,7 @@ export const EditTicketDialog = ({
                 multiline
                 rows={4}
                 required
-                disabled={isReceivedTicket}
+                disabled={shouldRestrictEditing}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
             </Grid>
@@ -749,7 +751,7 @@ export const EditTicketDialog = ({
                   value={ticket.desired_action || ''}
                   label="Desired Action"
                   onChange={onTicketChange}
-                  disabled={isReceivedTicket}
+                  disabled={shouldRestrictEditing}
                   sx={{ borderRadius: 2 }}
                 >
                   <MenuItem value="Approval/Signature">Approval/Signature</MenuItem>
@@ -783,10 +785,10 @@ export const EditTicketDialog = ({
                 multiline
                 rows={3}
                 required
-                error={(fileOperationsCount !== 0 && !ticket?.remarks?.trim()) || (isReceivedTicket && !ticket?.remarks?.trim())}
+                error={(fileOperationsCount !== 0 && !ticket?.remarks?.trim()) || (shouldRestrictEditing && !ticket?.remarks?.trim())}
                 helperText={
-                  isReceivedTicket 
-                    ? "Remarks are required when editing received tickets" 
+                  shouldRestrictEditing 
+                    ? "Remarks are required when editing received/forwarded tickets" 
                     : fileOperationsCount !== 0 
                       ? "Remarks are required when file operations are performed" 
                       : "Please provide remarks explaining the changes made to this ticket"
@@ -802,7 +804,7 @@ export const EditTicketDialog = ({
                   value={ticket.priority || 'Medium'}
                   label="Priority"
                   onChange={onTicketChange}
-                  disabled={isReceivedTicket}
+                  disabled={shouldRestrictEditing}
                   sx={{ borderRadius: 2 }}
                 >
                   <MenuItem value="Low">Low</MenuItem>
@@ -836,7 +838,7 @@ export const EditTicketDialog = ({
                   value={ticket.sendTo || ''}
                   label="Send To"
                   onChange={onTicketChange}
-                  disabled={isReceivedTicket}
+                  disabled={shouldRestrictEditing}
                   sx={{ borderRadius: 2 }}
                 >
                   <ListSubheader>Department Heads</ListSubheader>
@@ -856,7 +858,7 @@ export const EditTicketDialog = ({
                 type="date"
                 value={ticket.due_date || ''}
                 onChange={onTicketChange}
-                disabled={isReceivedTicket}
+                disabled={shouldRestrictEditing}
                 InputLabelProps={{ shrink: true }}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
@@ -1016,7 +1018,7 @@ export const EditTicketDialog = ({
       <Button 
         variant="contained"
         onClick={onSubmit}
-        disabled={loading || (fileOperationsCount !== 0 && !ticket?.remarks?.trim()) || (isReceivedTicket && !ticket?.remarks?.trim())}
+        disabled={loading || (fileOperationsCount !== 0 && !ticket?.remarks?.trim()) || (shouldRestrictEditing && !ticket?.remarks?.trim())}
         sx={{ minWidth: 100 }}
       >
         {loading ? <CircularProgress size={20} /> : 'Update Ticket'}
