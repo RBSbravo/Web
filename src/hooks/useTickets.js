@@ -62,41 +62,45 @@ export const useTickets = () => {
 
   const loadForwardedTickets = useCallback(async () => {
     try {
-      // Load both all tickets (created by me/admin scope) and received/assigned tickets
-      const [allRes, assignedRes] = await Promise.all([
-        ticketAPI.getAll(),
-        ticketAPI.getAssignedTickets()
-      ]);
-
-      const allTickets = allRes.data?.tickets || allRes.tickets || allRes.data || allRes || [];
-      const assigned = assignedRes.data || assignedRes || [];
-
-      const source = [...(Array.isArray(allTickets) ? allTickets : []), ...(Array.isArray(assigned) ? assigned : [])];
-
+      console.log('Loading forwarded tickets...');
+      // Load all tickets and filter for tickets forwarded by current user
+      const response = await ticketAPI.getAll();
+      const allTickets = response.data?.tickets || response.tickets || response.data || response || [];
+      
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       const currentUserId = currentUser?.id;
-
-      const forwardedByMe = source.filter(t => {
-        const forwardedFromId = t.forwarded_from_id || t.forwardedFromId || t.forwardedFrom?.id;
-        const isForwarded = t.is_forwarded === true || t.isForwarded === true || typeof t.forward_chain_id !== 'undefined' || typeof t.forwardChainId !== 'undefined';
+      
+      console.log('All tickets loaded:', {
+        allTickets: allTickets.length,
+        currentUserId
+      });
+      
+      // Filter tickets that were forwarded by the current user (same logic as desktop app)
+      const forwardedByMe = allTickets.filter(ticket => {
+        const forwardedFromId = ticket.forwarded_from_id || ticket.forwardedFromId || ticket.forwardedFrom?.id;
+        const isForwarded = ticket.is_forwarded === true || ticket.isForwarded === true;
         const forwardedByMatch = forwardedFromId && currentUserId && String(forwardedFromId) === String(currentUserId);
-        return isForwarded && forwardedByMatch;
+        
+        console.log('Checking ticket:', {
+          ticketId: ticket.id,
+          forwardedFromId,
+          isForwarded,
+          forwardedByMatch,
+          currentUserId
+        });
+        
+        return forwardedByMatch;
       });
-
-      // Deduplicate and sort
-      const seen = new Set();
-      const unique = forwardedByMe.filter(t => {
-        if (!t || !t.id) return false;
-        if (seen.has(t.id)) return false;
-        seen.add(t.id);
-        return true;
-      });
-
-      const sortedForwardedTickets = unique.sort((a, b) => {
+      
+      console.log('Forwarded by me tickets found:', forwardedByMe.length);
+      
+      // Sort by creation date
+      const sortedForwardedTickets = forwardedByMe.sort((a, b) => {
         const dateA = new Date(a.created_at || a.createdAt || 0);
         const dateB = new Date(b.created_at || b.createdAt || 0);
         return dateB - dateA;
       });
+      
       setForwardedTickets(sortedForwardedTickets);
     } catch (err) {
       console.error('Error loading forwarded-by-me tickets:', err);

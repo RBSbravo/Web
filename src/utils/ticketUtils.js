@@ -227,25 +227,15 @@ export const filterTickets = (tickets, assignedTickets, forwardedTickets, search
     case 1: // Received tickets - tickets assigned to or forwarded to the user (use assignedTickets from API)
       currentTickets = assignedTicketsArray;
       break;
-    case 2: { // Forwarded tickets - tickets that the user has forwarded to others
-      // Build from union of API-provided forwarded list and derivation from all tickets
-      const derivedForwardedByMe = allTickets.filter(ticket => {
-        const forwardedFromId = ticket.forwarded_from_id || ticket.forwardedFromId || ticket.forwardedFrom?.id;
-        const isForwarded = ticket.is_forwarded === true || ticket.isForwarded === true || typeof ticket.forward_chain_id !== 'undefined' || typeof ticket.forwardChainId !== 'undefined';
-        const forwardedByMatch = forwardedFromId && userId && String(forwardedFromId) === String(userId);
-        return isForwarded && forwardedByMatch;
+    case 2: // Forwarded tickets - tickets that the user has forwarded to others
+      // Use the forwarded tickets from the dedicated API endpoint
+      console.log('Filtering forwarded tickets:', {
+        forwardedTicketsArray,
+        length: forwardedTicketsArray.length,
+        userId
       });
-      const combined = [...forwardedTicketsArray, ...derivedForwardedByMe];
-      // Deduplicate by id
-      const seen = new Set();
-      currentTickets = combined.filter(t => {
-        if (!t || !t.id) return false;
-        if (seen.has(t.id)) return false;
-        seen.add(t.id);
-        return true;
-      });
+      currentTickets = forwardedTicketsArray;
       break;
-    }
     default:
       currentTickets = sentTickets;
   }
