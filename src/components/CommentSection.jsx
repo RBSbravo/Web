@@ -34,8 +34,10 @@ const CommentSection = ({ entityId, fetchComments, addComment, deleteComment, us
   const canDeleteComment = (comment) => {
     if (!user) return false;
     
-    // Don't allow deletion of remarks-comments (update type comments)
+    // Don't allow deletion of remarks-comments (update type comments), forward comments, and response comments
     if (comment.comment_type === 'update' || 
+        comment.comment_type === 'forward' ||
+        comment.comment_type === 'response' ||
         (comment.content && comment.content.startsWith('📝 **Task Updated**'))) {
       return false;
     }
@@ -238,20 +240,23 @@ const CommentSection = ({ entityId, fetchComments, addComment, deleteComment, us
                             </Typography>
                             <Box
                               sx={{
-                                color: theme.palette.info.main,
-                                backgroundColor: theme.palette.info.light,
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                borderLeft: `4px solid ${theme.palette.info.main}`,
+                                color: theme.palette.text.primary,
+                                backgroundColor: '#f5f5f5',
+                                padding: '8px 12px',
+                                borderRadius: '6px',
+                                borderLeft: `3px solid #e0e0e0`,
                                 display: 'inline-block',
-                                mb: 1
+                                width: '100%'
                               }}
                             >
-                              <Typography variant="body2" sx={{ mb: 0.5 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 'normal', mb: 0.5, color: theme.palette.text.secondary }}>
                                 <strong>To:</strong> {c.content.split('\n')[2]?.replace('To: ', '')}
                               </Typography>
-                              <Typography variant="body2">
-                                <strong>Reason:</strong> {c.content.split('\n')[3]?.replace('Reason: ', '')}
+                              <Typography variant="body2" sx={{ fontWeight: 'normal', mb: 0.5, color: theme.palette.text.secondary }}>
+                                <strong>Reason:</strong>
+                              </Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 'normal' }}>
+                                {c.content.split('\n')[3]?.replace('Reason: ', '')}
                               </Typography>
                             </Box>
                           </Box>
@@ -260,14 +265,26 @@ const CommentSection = ({ entityId, fetchComments, addComment, deleteComment, us
                           <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
                             Forward Response
                           </Typography>
-                          <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            Action: {c.content.split('\n')[2]?.replace('Action: ', '')}
-                          </Typography>
-                          {c.content.split('\n')[3] && (
-                            <Typography variant="body2" sx={{ mb: 1 }}>
-                              {c.content.split('\n')[3]}
+                          <Box
+                            sx={{
+                              color: theme.palette.text.primary,
+                              backgroundColor: '#f5f5f5',
+                              padding: '8px 12px',
+                              borderRadius: '6px',
+                              borderLeft: `3px solid #e0e0e0`,
+                              display: 'inline-block',
+                              width: '100%'
+                            }}
+                          >
+                            <Typography variant="body2" sx={{ fontWeight: 'normal', mb: 0.5, color: theme.palette.text.secondary }}>
+                              <strong>Action:</strong> {c.content.split('\n')[2]?.replace('Action: ', '')}
                             </Typography>
-                          )}
+                            {c.content.split('\n')[3] && (
+                              <Typography variant="body2" sx={{ fontWeight: 'normal' }}>
+                                {c.content.split('\n')[3]}
+                              </Typography>
+                            )}
+                          </Box>
                         </Box>
                       ) : (
                         c.content
