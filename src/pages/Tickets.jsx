@@ -59,7 +59,6 @@ const initialTicketState = {
 const Tickets = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const { user } = useUser();
   const { id: ticketId } = useParams();
   const navigate = useNavigate();
@@ -687,6 +686,7 @@ const Tickets = () => {
         addComment={addComment}
         loadComments={loadComments}
         deleteComment={deleteComment}
+        activeTab={activeTab}
       />
 
       {/* Edit Ticket Dialog */}

@@ -431,7 +431,8 @@ export const ViewTicketDialog = ({
   isMobile,
   addComment,
   loadComments,
-  deleteComment
+  deleteComment,
+  activeTab = 0
 }) => {
   useTheme();
 
@@ -641,11 +642,27 @@ export const ViewTicketDialog = ({
         </Button>
         <ForwardTicketButton 
           ticket={ticket}
-          disabled={!(
-            ticket?.assigned_to === JSON.parse(localStorage.getItem('user') || '{}')?.id || 
-            ticket?.forwarded_to_id === JSON.parse(localStorage.getItem('user') || '{}')?.id || 
-            ticket?.current_handler_id === JSON.parse(localStorage.getItem('user') || '{}')?.id
-          )}
+          disabled={(() => {
+            // Disable forward button if:
+            // 1. Tab 2 (Forwarded by Me) - always disable
+            // 2. Tab 1 (Received Tickets) - only disable if already forwarded
+            const isTab2 = activeTab === 2;
+            const isTab1AndForwarded = activeTab === 1 && Boolean(ticket?.forwarded_to_id || ticket?.is_forwarded || ticket?.forwardedToId);
+            const shouldDisable = isTab2 || isTab1AndForwarded;
+            
+            console.log('Forward button logic:', {
+              activeTab,
+              ticketId: ticket?.id,
+              forwarded_to_id: ticket?.forwarded_to_id,
+              is_forwarded: ticket?.is_forwarded,
+              forwardedToId: ticket?.forwardedToId,
+              isTab2,
+              isTab1AndForwarded,
+              shouldDisable
+            });
+            
+            return shouldDisable;
+          })()}
           onForward={() => {
             onClose();
             if (typeof onRefresh === 'function') {
