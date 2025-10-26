@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -20,11 +20,11 @@ import {
   Remove as PriorityMediumIcon,
   LowPriority as PriorityLowIcon,
 } from '@mui/icons-material';
-import { getTicketMaturityColor, getTicketMaturityText, getUserDisplayName, getDepartmentName, formatDate } from '../../utils/ticketUtils';
+import { getTicketMaturityColor, getTicketMaturityText, getUserDisplayName, formatDate } from '../../utils/ticketUtils';
+import { userAPI } from '../../services/api';
 
 const TicketCard = ({ 
   ticket, 
-  departments, 
   users,
   activeTab, 
   onViewTicket, 
@@ -37,19 +37,51 @@ const TicketCard = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [resolvedUsers, setResolvedUsers] = useState({});
 
-  // Helper function to get user name by ID or user object
+  // Resolve missing user details for forwarded users (same logic as TicketTable)
+  useEffect(() => {
+    if (activeTab !== 2 || !ticket) return;
+    
+    const knownIds = new Set((Array.isArray(users) ? users : []).map(u => String(u.id)));
+    const cachedIds = new Set(Object.keys(resolvedUsers));
+    
+    // Check if we need to resolve the forwarded user
+    const forwardTarget = ticket.forwardedTo || ticket.forwarded_to || ticket.forwarded_to_id || ticket.current_handler_id;
+    if (forwardTarget && typeof forwardTarget !== 'object') {
+      const idStr = String(forwardTarget);
+      if (!knownIds.has(idStr) && !cachedIds.has(idStr)) {
+        // Fetch the missing user details
+        (async () => {
+          try {
+            const res = await userAPI.getById(idStr);
+            const user = res.data || res || null;
+            setResolvedUsers(prev => ({ ...prev, [idStr]: user }));
+          } catch (error) {
+            console.error('Error fetching user details:', error);
+            setResolvedUsers(prev => ({ ...prev, [idStr]: null }));
+          }
+        })();
+      }
+    }
+  }, [activeTab, ticket, users, resolvedUsers]);
+
+  // Helper function to get user name by ID or user object (same logic as TicketTable)
   const getUserName = (userIdOrUser) => {
-    if (!userIdOrUser) return 'Unknown';
+    if (!userIdOrUser) return 'Unknown User';
     
     // If it's already a user object (from association), use it directly
     if (typeof userIdOrUser === 'object' && userIdOrUser.firstname) {
       return getUserDisplayName(userIdOrUser);
     }
     
-    // If it's a user ID, find the user in the users array
-    const user = users.find(u => u.id === userIdOrUser);
-    return getUserDisplayName(user);
+    // If it's a user ID, find the user in the users array or resolved users
+    const idStr = String(userIdOrUser);
+    const user = users.find(u => String(u.id) === idStr) || resolvedUsers[idStr];
+    if (user) return getUserDisplayName(user);
+    
+    // Fallback: display the raw id if user details are not found yet
+    return idStr;
   };
 
   if (!isMobile) {
@@ -119,7 +151,10 @@ const TicketCard = ({
                 : activeTab === 1 
                   ? getUserName(ticket.ticketCreator || ticket.createdBy || ticket.created_by)
                   : activeTab === 2 
-                    ? getUserName(ticket.forwarded_to_id)
+                    ? (() => {
+                        const forwardTarget = ticket.forwardedTo || ticket.forwarded_to || ticket.forwarded_to_id || ticket.current_handler_id;
+                        return getUserName(forwardTarget);
+                      })()
                     : getUserName(ticket.ticketCreator || ticket.createdBy || ticket.created_by)
             }
           </Typography>
