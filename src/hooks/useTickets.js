@@ -62,13 +62,20 @@ export const useTickets = () => {
 
   const loadForwardedTickets = useCallback(async () => {
     try {
-      console.log('Loading forwarded tickets...');
+      console.log('=== LOADING FORWARDED TICKETS ===');
+      
+      const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+      const currentUserId = currentUser?.id;
+      
+      if (!currentUserId) {
+        console.log('No current user ID found, skipping forwarded tickets load');
+        setForwardedTickets([]);
+        return;
+      }
+      
       // Load all tickets and filter for tickets forwarded by current user
       const response = await ticketAPI.getAll();
       const allTickets = response.data?.tickets || response.tickets || response.data || response || [];
-      
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      const currentUserId = currentUser?.id;
       
       console.log('All tickets loaded:', {
         allTickets: allTickets.length,
@@ -81,13 +88,18 @@ export const useTickets = () => {
         const isForwarded = ticket.is_forwarded === true || ticket.isForwarded === true;
         const forwardedByMatch = forwardedFromId && currentUserId && String(forwardedFromId) === String(currentUserId);
         
-        console.log('Checking ticket:', {
-          ticketId: ticket.id,
-          forwardedFromId,
-          isForwarded,
-          forwardedByMatch,
-          currentUserId
-        });
+        // Only log tickets that are forwarded to reduce noise
+        if (isForwarded) {
+          console.log('Checking forwarded ticket:', {
+            ticketId: ticket.id,
+            forwardedFromId,
+            forwardedToId: ticket.forwarded_to_id,
+            isForwarded,
+            forwardedByMatch,
+            currentUserId,
+            title: ticket.title
+          });
+        }
         
         return forwardedByMatch;
       });
@@ -137,17 +149,18 @@ export const useTickets = () => {
       await Promise.all([
         loadTickets(),
         loadAssignedTickets(),
-        loadForwardedTickets(),
         loadDepartments(),
         loadUsers()
       ]);
+      // Load forwarded tickets separately to avoid circular dependency
+      await loadForwardedTickets();
     } catch (err) {
       console.error('Error loading initial data:', err);
       setError('Failed to load data. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [loadTickets, loadAssignedTickets, loadForwardedTickets, loadDepartments, loadUsers]);
+  }, [loadTickets, loadAssignedTickets, loadDepartments, loadUsers, loadForwardedTickets]);
 
   const createTicket = useCallback(async (ticketData, files = []) => {
     setActionLoading(true);
@@ -226,25 +239,36 @@ export const useTickets = () => {
     try {
       const response = await ticketAPI.forwardTicket(ticketId, forwardData);
 
-      // Try to fetch the updated ticket and optimistically add to forwarded-by-me list
-      try {
-        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-        const currentUserId = currentUser?.id;
-        const ticketRes = await ticketAPI.getById(ticketId);
-        const updated = ticketRes.data || ticketRes || null;
-        if (updated && currentUserId) {
-          const forwardedFromId = updated.forwarded_from_id || updated.forwardedFromId || updated.forwardedFrom?.id;
-          const isForwarded = updated.is_forwarded === true || updated.isForwarded === true || typeof updated.forward_chain_id !== 'undefined' || typeof updated.forwardChainId !== 'undefined';
-          if (isForwarded && forwardedFromId && String(forwardedFromId) === String(currentUserId)) {
-            setForwardedTickets(prev => {
-              const exists = prev.some(t => t.id === updated.id);
-              return exists ? prev : [updated, ...prev];
-            });
+        // Try to fetch the updated ticket and optimistically add to forwarded-by-me list
+        try {
+          const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+          const currentUserId = currentUser?.id;
+          const ticketRes = await ticketAPI.getById(ticketId);
+          const updated = ticketRes.data || ticketRes || null;
+          
+          console.log('Updated ticket after forwarding:', {
+            ticketId: updated?.id,
+            forwarded_from_id: updated?.forwarded_from_id,
+            forwarded_to_id: updated?.forwarded_to_id,
+            is_forwarded: updated?.is_forwarded,
+            currentUserId
+          });
+          
+          if (updated && currentUserId) {
+            const forwardedFromId = updated.forwarded_from_id || updated.forwardedFromId || updated.forwardedFrom?.id;
+            const isForwarded = updated.is_forwarded === true || updated.isForwarded === true || typeof updated.forward_chain_id !== 'undefined' || typeof updated.forwardChainId !== 'undefined';
+            if (isForwarded && forwardedFromId && String(forwardedFromId) === String(currentUserId)) {
+              console.log('Adding ticket to forwarded list optimistically');
+              setForwardedTickets(prev => {
+                const exists = prev.some(t => t.id === updated.id);
+                return exists ? prev : [updated, ...prev];
+              });
+            }
           }
+        } catch (e) {
+          console.error('Error in optimistic update:', e);
+          // Non-fatal; we'll refresh lists below
         }
-      } catch (e) {
-        // Non-fatal; we'll refresh lists below
-      }
 
       // Refresh tickets after forwarding to ensure consistency across tabs
       await loadTickets();
