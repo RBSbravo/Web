@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 let socket;
 
 // Helper function to get token from storage (same logic as UserContext and API interceptor)
-const getToken = () => {
+export const getToken = () => {
   return localStorage.getItem('token') || sessionStorage.getItem('token');
 };
 

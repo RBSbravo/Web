@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import { getToken } from '../../services/socket';
 import {
   Dialog,
   DialogTitle,
@@ -47,7 +48,7 @@ const TaskDetailsModal = ({
   const handleTicketFileDownload = async (file) => {
     const url = file.url || `/api/files/${file.id}/download`;
     try {
-      const token = localStorage.getItem('token');
+      const token = getToken();
       const response = await fetch(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });

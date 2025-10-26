@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getToken } from '../services/socket';
 import {
   Box,
   CircularProgress,
@@ -22,7 +23,7 @@ const NavigationGuard = ({ children }) => {
     try {
       // Get user from localStorage
       const storedUser = localStorage.getItem('user');
-      const token = localStorage.getItem('token');
+      const token = getToken();
 
       if (!storedUser || !token) {
         // No authentication data, redirect to login

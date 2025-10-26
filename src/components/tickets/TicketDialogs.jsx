@@ -1,4 +1,5 @@
 import React from 'react';
+import { getToken } from '../../services/socket';
 import {
   Dialog,
   DialogTitle,
@@ -937,7 +938,7 @@ export const EditTicketDialog = ({
                                         URL.revokeObjectURL(url);
                                       } else {
                                         // Server file - download from server
-                                        const token = localStorage.getItem('token');
+                                        const token = getToken();
                                         const url = `/api/files/${file.id}/download`;
                                         fetch(url, {
                                           headers: { Authorization: `Bearer ${token}` }

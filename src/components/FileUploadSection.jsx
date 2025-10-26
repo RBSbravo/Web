@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { getToken } from '../services/socket';
 import { 
   Box, 
   Typography, 
@@ -195,7 +196,7 @@ const FileUploadSection = ({
     } finally {
       setUploading(false);
     }
-  }, [files.length, maxFiles, maxFileSize, acceptedTypes, uploadFile, entityId, loadFiles, fetchFiles]);
+  }, [files.length, maxFiles, maxFileSize, acceptedTypes, uploadFile, entityId, loadFiles, fetchFiles, entityType]);
 
   const handleDelete = (fileId) => {
     setDeleteId(fileId);
@@ -230,7 +231,7 @@ const FileUploadSection = ({
 
   // Secure file download with auth header
   const downloadFile = async (file) => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     try {
       const response = await fetch(file.url, {
         headers: { Authorization: `Bearer ${token}` }
@@ -302,7 +303,7 @@ const FileUploadSection = ({
         const response = await fetch(finalUrl, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${getToken()}`,
           },
         });
 
