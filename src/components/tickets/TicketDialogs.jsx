@@ -647,11 +647,13 @@ export const ViewTicketDialog = ({
           ticket={ticket}
           disabled={(() => {
             // Disable forward button if:
-            // 1. Tab 2 (Forwarded by Me) - always disable
-            // 2. Tab 1 (Received Tickets) - only disable if already forwarded
+            // 1. Tab 0 (Sent Tickets) - always disable
+            // 2. Tab 2 (Forwarded by Me) - always disable
+            // 3. Tab 1 (Received Tickets) - only disable if already forwarded
+            const isTab0 = activeTab === 0;
             const isTab2 = activeTab === 2;
             const isTab1AndForwarded = activeTab === 1 && Boolean(ticket?.forwarded_to_id || ticket?.is_forwarded || ticket?.forwardedToId);
-            const shouldDisable = isTab2 || isTab1AndForwarded;
+            const shouldDisable = isTab0 || isTab2 || isTab1AndForwarded;
             
             return shouldDisable;
           })()}
