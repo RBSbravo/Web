@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import useUser from '../context/useUser';
 import {
   Box,
   Typography,
@@ -70,7 +71,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
 import PageHeader from '../components/layout/PageHeader';
 import RateLimitAlert from '../components/RateLimitAlert';
-import { authAPI, userAPI } from '../services/api';
+import { authAPI } from '../services/api';
 import passwordValidator from '../utils/passwordValidator';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 import { handleApiError, rateLimitHandler } from '../utils/rateLimitHandler';
@@ -101,17 +102,28 @@ const TabPanel = (props) => {
 
 const Settings = () => {
   const navigate = useNavigate();
+  const { user, updateUser } = useUser();
   const [currentTab, setCurrentTab] = useState(0);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
   const [isEditingAccount, setIsEditingAccount] = useState(false);
   const [accountForm, setAccountForm] = useState({
-    firstname: user.firstname || '',
-    lastname: user.lastname || '',
-    email: user.email || ''
+    firstname: user?.firstname || '',
+    lastname: user?.lastname || '',
+    email: user?.email || ''
   });
   const [isSavingAccount, setIsSavingAccount] = useState(false);
   const [accountError, setAccountError] = useState('');
+
+  // Update accountForm when user data changes
+  useEffect(() => {
+    if (user) {
+      setAccountForm({
+        firstname: user?.firstname || '',
+        lastname: user?.lastname || '',
+        email: user?.email || ''
+      });
+    }
+  }, [user]);
 
   // Change password state
   const [passwordData, setPasswordData] = useState({
@@ -147,9 +159,9 @@ const Settings = () => {
 
   const handleAccountCancel = () => {
     setAccountForm({
-      firstname: user.firstname || '',
-      lastname: user.lastname || '',
-      email: user.email || ''
+      firstname: user?.firstname || '',
+      lastname: user?.lastname || '',
+      email: user?.email || ''
     });
     setIsEditingAccount(false);
     setAccountError('');
@@ -164,10 +176,7 @@ const Settings = () => {
         lastname: (accountForm.lastname || '').trim(),
         email: (accountForm.email || '').trim()
       };
-      await userAPI.update(user.id, payload);
-      const updatedUser = { ...user, ...payload };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      await updateUser(payload);
       setIsEditingAccount(false);
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 3000);
@@ -384,8 +393,13 @@ const Settings = () => {
           {/* Account Settings */}
           <TabPanel value={currentTab} index={0}>
             <Box sx={{ px: { xs: 2, md: 4 }, py: { xs: 2, md: 3 } }}>
-              <Grid container spacing={4}>
-              <Grid item xs={12}>
+              {!user ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Grid container spacing={4}>
+                <Grid item xs={12}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
                   <Avatar
                 sx={{
@@ -397,17 +411,17 @@ const Settings = () => {
                       fontWeight: 'bold'
                     }}
                   >
-                    {user.firstname?.[0]?.toUpperCase()}{user.lastname?.[0]?.toUpperCase()}
+                    {user?.firstname?.[0]?.toUpperCase()}{user?.lastname?.[0]?.toUpperCase()}
                   </Avatar>
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                      {user.firstname} {user.lastname}
+                      {user?.firstname} {user?.lastname}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                      {user.role}
+                      {user?.role}
                           </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {user.email}
+                      {user?.email}
                     </Typography>
                   </Box>
                 </Box>
@@ -435,7 +449,7 @@ const Settings = () => {
                     <TextField
                       fullWidth
                       label="First Name"
-                      value={isEditingAccount ? accountForm.firstname : (user.firstname || '')}
+                      value={isEditingAccount ? accountForm.firstname : (user?.firstname || '')}
                       onChange={(e) => handleAccountFieldChange('firstname', e.target.value)}
                       disabled={!isEditingAccount}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
@@ -445,7 +459,7 @@ const Settings = () => {
                     <TextField
                       fullWidth
                       label="Last Name"
-                      value={isEditingAccount ? accountForm.lastname : (user.lastname || '')}
+                      value={isEditingAccount ? accountForm.lastname : (user?.lastname || '')}
                       onChange={(e) => handleAccountFieldChange('lastname', e.target.value)}
                       disabled={!isEditingAccount}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
@@ -455,7 +469,7 @@ const Settings = () => {
                     <TextField
                       fullWidth
                       label="Email"
-                      value={isEditingAccount ? accountForm.email : (user.email || '')}
+                      value={isEditingAccount ? accountForm.email : (user?.email || '')}
                       onChange={(e) => handleAccountFieldChange('email', e.target.value)}
                       disabled={!isEditingAccount}
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
@@ -465,7 +479,7 @@ const Settings = () => {
                     <TextField
                       fullWidth
                       label="Role"
-                      value={user.role || ''}
+                      value={user?.role || ''}
                       disabled
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     />
@@ -474,7 +488,7 @@ const Settings = () => {
                     <TextField
                       fullWidth
                       label="Department"
-                      value={user.department?.name || user.department || 'N/A'}
+                      value={user?.department?.name || user?.department || 'N/A'}
                       disabled
                       sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                     />
@@ -482,6 +496,7 @@ const Settings = () => {
                 </Grid>
               </Grid>
             </Grid>
+                )}
                   </Box>
           </TabPanel>
 
