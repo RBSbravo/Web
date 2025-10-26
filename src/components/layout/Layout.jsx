@@ -10,7 +10,7 @@ import NotificationModal from './NotificationModal';
 import LoadingSpinner from './LoadingSpinner';
 import { navigationItems, DRAWER_WIDTH } from './constants';
 import { notificationAPI } from '../../services/api';
-import { connectSocket, disconnectSocket } from '../../services/socket';
+import { connectSocketWithAuth, disconnectSocket } from '../../services/socket';
 
 const Layout = memo(() => {
   const navigate = useNavigate();
@@ -118,14 +118,20 @@ const Layout = memo(() => {
 
   useEffect(() => {
     if (user && user.id) {
-      const token = localStorage.getItem('token');
-      connectSocket(token, user.id, (payload) => {
+      console.log('Layout: Attempting socket connection for user:', user.id);
+      
+      const socket = connectSocketWithAuth(user.id, (payload) => {
         // Show a toast/snackbar
         setSnackbarMessage(payload.data.message || 'You have a new notification');
         setSnackbarOpen(true);
         // Optionally, increment unread count
         setUnreadCount((prev) => prev + 1);
       });
+      
+      if (!socket) {
+        console.error('Layout: Failed to establish socket connection');
+      }
+      
       return () => {
         disconnectSocket();
       };

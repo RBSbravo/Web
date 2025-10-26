@@ -641,7 +641,11 @@ export const ViewTicketDialog = ({
         </Button>
         <ForwardTicketButton 
           ticket={ticket}
-          disabled={!(ticket?.forwarded_to_id === JSON.parse(localStorage.getItem('user') || '{}')?.id || ticket?.current_handler_id === JSON.parse(localStorage.getItem('user') || '{}')?.id)}
+          disabled={!(
+            ticket?.assigned_to === JSON.parse(localStorage.getItem('user') || '{}')?.id || 
+            ticket?.forwarded_to_id === JSON.parse(localStorage.getItem('user') || '{}')?.id || 
+            ticket?.current_handler_id === JSON.parse(localStorage.getItem('user') || '{}')?.id
+          )}
           onForward={() => {
             onClose();
             if (typeof onRefresh === 'function') {
