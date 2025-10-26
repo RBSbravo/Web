@@ -467,7 +467,7 @@ const Dashboard = () => {
                     {dashboardData.teamPerformance.reduce((sum, member) => sum + member.tasksCompleted + member.ticketsClosed, 0)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Completed Items
+                    Completed Tasks and Tickets
                   </Typography>
                 </CardContent>
               </Card>
