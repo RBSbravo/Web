@@ -704,6 +704,7 @@ const Tickets = () => {
         onSubmit={handleUpdateTicket}
         loading={actionLoading}
         fileOperationsCount={fileOperationsCount}
+        activeTab={activeTab}
       />
     </Box>
   );

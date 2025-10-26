@@ -229,11 +229,6 @@ export const filterTickets = (tickets, assignedTickets, forwardedTickets, search
       break;
     case 2: // Forwarded tickets - tickets that the user has forwarded to others
       // Use the forwarded tickets from the dedicated API endpoint
-      console.log('Filtering forwarded tickets:', {
-        forwardedTicketsArray,
-        length: forwardedTicketsArray.length,
-        userId
-      });
       currentTickets = forwardedTicketsArray;
       break;
     default:

@@ -46,13 +46,10 @@ const ForwardTicketButton = ({ ticket, onForward, disabled = false }) => {
         const deptHeads = deptHeadRes.data || deptHeadRes || [];
         const admins = adminRes.data || adminRes || [];
         allUsers = [...deptHeads, ...admins];
-        console.log('Department heads and admins fetched with role param:', allUsers);
       } catch (roleError) {
-        console.log('Role-based fetch failed, trying all users:', roleError);
         // Fallback: fetch all users and filter
         const allUsersRes = await userAPI.getAll();
         allUsers = allUsersRes.data || allUsersRes || [];
-        console.log('All users fetched:', allUsers);
       }
       
       // If we fetched all users, filter for department heads and admins
@@ -68,8 +65,6 @@ const ForwardTicketButton = ({ ticket, onForward, disabled = false }) => {
                  (user.role && user.role.includes('head'));
         });
       }
-      
-      console.log('Eligible users found:', eligibleUsers);
       
       // Format the recipients - department heads and admins
       const allRecipients = eligibleUsers.map(user => {

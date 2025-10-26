@@ -74,7 +74,6 @@ const CommentSection = ({ entityId, fetchComments, addComment, deleteComment, us
     setSubmitting(true);
     setErrorMsg('');
     try {
-      console.log('Submitting comment:', { entityId, content: comment });
       await addComment(entityId, { content: comment });
       setComment('');
       loadComments();

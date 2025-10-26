@@ -10,18 +10,12 @@ const getToken = () => {
 export const connectSocket = (token, userId, onNotification) => {
   // Disconnect existing socket if any
   if (socket) {
-    console.log('Disconnecting existing socket before reconnecting');
     socket.disconnect();
     socket = null;
   }
   
   // Use environment variable if available, fallback to hardcoded URL
   const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://backend-ticketing-system.up.railway.app';
-  
-  console.log('Connecting to socket:', SOCKET_URL);
-  console.log('Token provided:', token ? 'YES' : 'NO');
-  console.log('Token length:', token ? token.length : 0);
-  console.log('User ID:', userId);
   
   if (!token) {
     console.error('No token provided to socket connection!');
@@ -33,21 +27,17 @@ export const connectSocket = (token, userId, onNotification) => {
   });
 
   socket.on('connect', () => {
-    console.log('Socket connected successfully');
-    console.log('Socket ID:', socket.id);
     if (userId) {
-      console.log('Joining user room:', userId);
       socket.emit('join', userId);
     }
   });
 
   socket.on('notification', (payload) => {
-    console.log('New notification:', payload);
     if (onNotification) onNotification(payload);
   });
 
   socket.on('disconnect', () => {
-    console.log('Socket disconnected');
+    // Socket disconnected
   });
 
   socket.on('connect_error', (err) => {

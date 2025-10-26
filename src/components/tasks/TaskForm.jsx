@@ -72,7 +72,7 @@ const TaskForm = ({
 
     setErrors({});
     setFormError('');
-  }, [open, initialData, mode]);
+  }, [open, initialData, mode, pendingTickets]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -296,6 +296,9 @@ const TaskForm = ({
                 error={!!errors.dueDate}
                 helperText={errors.dueDate}
                 InputLabelProps={{ shrink: true }}
+                inputProps={{ 
+                  min: new Date().toISOString().split('T')[0] // Disable past dates
+                }}
                 required
               />
             </Grid>

@@ -272,6 +272,9 @@ export const NewTicketDialog = ({
               value={newTicket.due_date || ''}
               onChange={onTicketChange}
               InputLabelProps={{ shrink: true }}
+              inputProps={{ 
+                min: new Date().toISOString().split('T')[0] // Disable past dates
+              }}
             />
           </Grid>
           <Grid item xs={12}>
@@ -650,17 +653,6 @@ export const ViewTicketDialog = ({
             const isTab1AndForwarded = activeTab === 1 && Boolean(ticket?.forwarded_to_id || ticket?.is_forwarded || ticket?.forwardedToId);
             const shouldDisable = isTab2 || isTab1AndForwarded;
             
-            console.log('Forward button logic:', {
-              activeTab,
-              ticketId: ticket?.id,
-              forwarded_to_id: ticket?.forwarded_to_id,
-              is_forwarded: ticket?.is_forwarded,
-              forwardedToId: ticket?.forwardedToId,
-              isTab2,
-              isTab1AndForwarded,
-              shouldDisable
-            });
-            
             return shouldDisable;
           })()}
           onForward={() => {
@@ -698,12 +690,16 @@ export const EditTicketDialog = ({
   departments,
   onSubmit,
   loading,
-  fileOperationsCount = 0
+  fileOperationsCount = 0,
+  activeTab = 0 // Add activeTab prop to determine if it's a received ticket
 }) => {
   // Don't render if ticket is null
   if (!ticket) {
     return null;
   }
+  
+  // Determine if this is a received ticket (tab 1) - restrict editing to status only
+  const isReceivedTicket = activeTab === 1;
   
   return (
   <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -725,6 +721,7 @@ export const EditTicketDialog = ({
                 value={ticket.title || ''}
                 onChange={onTicketChange}
                 required
+                disabled={isReceivedTicket}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
             </Grid>
@@ -738,6 +735,7 @@ export const EditTicketDialog = ({
                 multiline
                 rows={4}
                 required
+                disabled={isReceivedTicket}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
             </Grid>
@@ -749,6 +747,7 @@ export const EditTicketDialog = ({
                   value={ticket.desired_action || ''}
                   label="Desired Action"
                   onChange={onTicketChange}
+                  disabled={isReceivedTicket}
                   sx={{ borderRadius: 2 }}
                 >
                   <MenuItem value="Approval/Signature">Approval/Signature</MenuItem>
@@ -769,15 +768,27 @@ export const EditTicketDialog = ({
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label={fileOperationsCount !== 0 ? "Remarks (Required - File operations performed)" : "Remarks (Required for updates)"}
+                label={
+                  isReceivedTicket 
+                    ? "Remarks (Required for received tickets)" 
+                    : fileOperationsCount !== 0 
+                      ? "Remarks (Required - File operations performed)" 
+                      : "Remarks (Required for updates)"
+                }
                 name="remarks"
                 value={ticket?.remarks || ''}
                 onChange={onTicketChange}
                 multiline
                 rows={3}
                 required
-                error={fileOperationsCount !== 0 && !ticket?.remarks?.trim()}
-                helperText={fileOperationsCount !== 0 ? "Remarks are required when file operations are performed" : "Please provide remarks explaining the changes made to this ticket"}
+                error={(fileOperationsCount !== 0 && !ticket?.remarks?.trim()) || (isReceivedTicket && !ticket?.remarks?.trim())}
+                helperText={
+                  isReceivedTicket 
+                    ? "Remarks are required when editing received tickets" 
+                    : fileOperationsCount !== 0 
+                      ? "Remarks are required when file operations are performed" 
+                      : "Please provide remarks explaining the changes made to this ticket"
+                }
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
             </Grid>
@@ -789,6 +800,7 @@ export const EditTicketDialog = ({
                   value={ticket.priority || 'Medium'}
                   label="Priority"
                   onChange={onTicketChange}
+                  disabled={isReceivedTicket}
                   sx={{ borderRadius: 2 }}
                 >
                   <MenuItem value="Low">Low</MenuItem>
@@ -822,6 +834,7 @@ export const EditTicketDialog = ({
                   value={ticket.sendTo || ''}
                   label="Send To"
                   onChange={onTicketChange}
+                  disabled={isReceivedTicket}
                   sx={{ borderRadius: 2 }}
                 >
                   <ListSubheader>Department Heads</ListSubheader>
@@ -841,6 +854,7 @@ export const EditTicketDialog = ({
                 type="date"
                 value={ticket.due_date || ''}
                 onChange={onTicketChange}
+                disabled={isReceivedTicket}
                 InputLabelProps={{ shrink: true }}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
@@ -1000,7 +1014,7 @@ export const EditTicketDialog = ({
       <Button 
         variant="contained"
         onClick={onSubmit}
-        disabled={loading || (fileOperationsCount !== 0 && !ticket?.remarks?.trim())}
+        disabled={loading || (fileOperationsCount !== 0 && !ticket?.remarks?.trim()) || (isReceivedTicket && !ticket?.remarks?.trim())}
         sx={{ minWidth: 100 }}
       >
         {loading ? <CircularProgress size={20} /> : 'Update Ticket'}

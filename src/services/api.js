@@ -3,9 +3,6 @@ import axios from 'axios';
 // Force Railway URL for production - FORCE REDEPLOY
 const API_BASE_URL = 'https://backend-ticketing-system.up.railway.app/api';
 
-console.log('Using Railway API URL:', API_BASE_URL);
-console.log('FORCE REDEPLOY: Railway URL configured - ' + new Date().toISOString());
-
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -32,11 +29,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.log('API Error:', {
-      url: error.config?.url,
-      status: error.response?.status,
-      message: error.message
-    });
+    // API Error occurred
     
     const originalRequest = error.config;
     const isAuthEndpoint = originalRequest && originalRequest.url && (
@@ -63,7 +56,6 @@ api.interceptors.response.use(
     }
     
     if (error.response?.status === 401 && isAuthEndpoint) {
-      console.log('Auth endpoint 401 error - logging out');
       // Clear both storages
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -275,7 +267,7 @@ export const connectWebSocket = (token) => {
   const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
   
   ws.onopen = () => {
-    console.log('WebSocket connected');
+    // WebSocket connected
   };
   
   ws.onmessage = (event) => {
@@ -295,7 +287,7 @@ export const connectWebSocket = (token) => {
   };
   
   ws.onclose = () => {
-    console.log('WebSocket disconnected');
+    // WebSocket disconnected
   };
   
   return ws;

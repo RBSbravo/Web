@@ -118,8 +118,6 @@ const Layout = memo(() => {
 
   useEffect(() => {
     if (user && user.id) {
-      console.log('Layout: Attempting socket connection for user:', user.id);
-      
       const socket = connectSocketWithAuth(user.id, (payload) => {
         // Show a toast/snackbar
         setSnackbarMessage(payload.data.message || 'You have a new notification');
