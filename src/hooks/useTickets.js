@@ -73,41 +73,28 @@ export const useTickets = () => {
         return;
       }
       
-      // Load all tickets and filter for tickets forwarded by current user
-      const response = await ticketAPI.getAll();
-      const allTickets = response.data?.tickets || response.tickets || response.data || response || [];
+      // Use the new dedicated API endpoint for tickets forwarded by me
+      const response = await ticketAPI.getTicketsForwardedByMe();
+      const forwardedTickets = response.data?.tickets || response.tickets || response.data || response || [];
       
-      console.log('All tickets loaded:', {
-        allTickets: allTickets.length,
+      console.log('Forwarded by me tickets loaded:', {
+        forwardedTickets: forwardedTickets.length,
         currentUserId
       });
       
-      // Filter tickets that were forwarded by the current user (same logic as desktop app)
-      const forwardedByMe = allTickets.filter(ticket => {
-        const forwardedFromId = ticket.forwarded_from_id || ticket.forwardedFromId || ticket.forwardedFrom?.id;
-        const isForwarded = ticket.is_forwarded === true || ticket.isForwarded === true;
-        const forwardedByMatch = forwardedFromId && currentUserId && String(forwardedFromId) === String(currentUserId);
-        
-        // Only log tickets that are forwarded to reduce noise
-        if (isForwarded) {
-          console.log('Checking forwarded ticket:', {
-            ticketId: ticket.id,
-            forwardedFromId,
-            forwardedToId: ticket.forwarded_to_id,
-            isForwarded,
-            forwardedByMatch,
-            currentUserId,
-            title: ticket.title
-          });
-        }
-        
-        return forwardedByMatch;
+      // Log each forwarded ticket for debugging
+      forwardedTickets.forEach(ticket => {
+        console.log('Forwarded ticket:', {
+          ticketId: ticket.id,
+          forwardedFromId: ticket.forwarded_from_id,
+          forwardedToId: ticket.forwarded_to_id,
+          isForwarded: ticket.is_forwarded,
+          title: ticket.title
+        });
       });
       
-      console.log('Forwarded by me tickets found:', forwardedByMe.length);
-      
-      // Sort by creation date
-      const sortedForwardedTickets = forwardedByMe.sort((a, b) => {
+      // Sort by creation date (newest first)
+      const sortedForwardedTickets = forwardedTickets.sort((a, b) => {
         const dateA = new Date(a.created_at || a.createdAt || 0);
         const dateB = new Date(b.created_at || b.createdAt || 0);
         return dateB - dateA;

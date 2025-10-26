@@ -179,6 +179,7 @@ export const ticketAPI = {
   respondToForward: (id, data) => api.patch(`/tickets/${id}/forward/respond`, data),
   getForwardHistory: (id) => api.get(`/tickets/${id}/forward-history`),
   getTicketsForwardedToMe: () => api.get('/tickets/forwarded-to-me'),
+  getTicketsForwardedByMe: () => api.get('/tickets/forwarded-by-me'),
 };
 
 // Analytics APIs (Department Head features)
