@@ -151,6 +151,14 @@ const Login = () => {
       const { data } = response;
       
       if (data && data.token) {
+        // Check if user has department_head role
+        if (data.user && data.user.role !== 'department_head') {
+          clearTimeout(loadingTimeout);
+          setLoginLoading(false);
+          setLoginError('Access denied. Only department heads are allowed to access this system.');
+          return;
+        }
+        
         clearTimeout(loadingTimeout);
         setLoginSuccess(true);
         rateLimitHandler.clearRetryTimer('login');
@@ -382,6 +390,11 @@ const Login = () => {
                  <Typography variant="body1" color="text.secondary" sx={{ fontSize: 14, mt: 0.25 }}>
                    Sign in to continue
                  </Typography>
+                 <Alert severity="info" sx={{ mt: 2, fontSize: '0.875rem' }}>
+                   <Typography variant="body2">
+                     <strong>Access Restricted:</strong> Only department heads are allowed to access this system.
+                   </Typography>
+                 </Alert>
                </Box>
              )}
 
@@ -526,6 +539,11 @@ const Login = () => {
             {/* Register Form */}
             {tab === 1 && (
               <form onSubmit={handleRegisterSubmit} style={{ width: '100%' }}>
+                <Alert severity="info" sx={{ mb: 2, fontSize: '0.875rem' }}>
+                  <Typography variant="body2">
+                    <strong>Registration Notice:</strong> Only department heads can register for this system. Your account will require admin approval.
+                  </Typography>
+                </Alert>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
