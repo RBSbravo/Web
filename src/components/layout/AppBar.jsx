@@ -22,6 +22,9 @@ import {
   Logout as LogoutIcon,
   Business as BusinessIcon,
   Notifications as NotificationsIcon,
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Work as WorkIcon,
 } from '@mui/icons-material';
 import useTheme from '../../context/useTheme';
 import mitoLogo from '../../assets/mito_logo.png';
@@ -238,7 +241,7 @@ const AppBar = memo(({
           paper: {
             elevation: 4,
             sx: {
-              minWidth: { xs: 200, sm: 220 },
+              minWidth: { xs: 280, sm: 320 },
               borderRadius: 2,
               backgroundColor: (theme) =>
                 theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.common.white,
@@ -261,7 +264,132 @@ const AppBar = memo(({
           },
         }}
       >
-        <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
+        {/* Profile Header */}
+        <Box sx={{ 
+          px: { xs: 2, sm: 2.5 }, 
+          py: { xs: 2, sm: 2.5 },
+          borderBottom: 1,
+          borderColor: 'divider',
+          backgroundColor: (theme) => 
+            theme.palette.mode === 'dark' 
+              ? 'rgba(76,175,80,0.05)' 
+              : 'rgba(76,175,80,0.02)'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Avatar sx={{ 
+              width: 48, 
+              height: 48, 
+              bgcolor: muiTheme.palette.primary.main,
+              fontSize: '1.2rem',
+              fontWeight: 600,
+              border: '2px solid',
+              borderColor: 'primary.main',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              mr: 2
+            }}>
+              {userInitial}
+            </Avatar>
+            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+              <Typography variant="h6" sx={{ 
+                fontWeight: 600, 
+                fontSize: '1rem',
+                color: 'text.primary',
+                lineHeight: 1.2,
+                mb: 0.5
+              }}>
+                {user?.firstname && user?.lastname 
+                  ? `${user.firstname} ${user.lastname}` 
+                  : user?.name || 'User'
+                }
+              </Typography>
+              <Typography variant="body2" sx={{ 
+                color: 'text.secondary',
+                fontSize: '0.85rem',
+                lineHeight: 1.2
+              }}>
+                {user?.role === 'department_head' ? 'Department Head' : 'User'}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Profile Details */}
+        <Box sx={{ px: { xs: 2, sm: 2.5 }, py: { xs: 1.5, sm: 2 } }}>
+          {/* Email */}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            mb: 1.5,
+            py: 0.5
+          }}>
+            <EmailIcon sx={{ 
+              fontSize: 18, 
+              color: 'text.secondary', 
+              mr: 1.5,
+              flexShrink: 0
+            }} />
+            <Typography variant="body2" sx={{ 
+              color: 'text.secondary',
+              fontSize: '0.85rem',
+              wordBreak: 'break-word',
+              lineHeight: 1.3
+            }}>
+              {user?.email || 'No email provided'}
+            </Typography>
+          </Box>
+
+          {/* Department */}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            mb: 1.5,
+            py: 0.5
+          }}>
+            <BusinessIcon sx={{ 
+              fontSize: 18, 
+              color: 'text.secondary', 
+              mr: 1.5,
+              flexShrink: 0
+            }} />
+            <Typography variant="body2" sx={{ 
+              color: 'text.secondary',
+              fontSize: '0.85rem',
+              lineHeight: 1.3
+            }}>
+              {user?.department || 'No department assigned'}
+            </Typography>
+          </Box>
+
+          {/* Role */}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            mb: 1,
+            py: 0.5
+          }}>
+            <WorkIcon sx={{ 
+              fontSize: 18, 
+              color: 'text.secondary', 
+              mr: 1.5,
+              flexShrink: 0
+            }} />
+            <Typography variant="body2" sx={{ 
+              color: 'text.secondary',
+              fontSize: '0.85rem',
+              lineHeight: 1.3
+            }}>
+              {user?.role === 'department_head' ? 'Department Head' : 'Standard User'}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Divider />
+
+        {/* Logout */}
+        <MenuItem onClick={handleLogout} sx={{ 
+          color: 'error.main',
+          mt: 0.5
+        }}>
           <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
           Logout
         </MenuItem>

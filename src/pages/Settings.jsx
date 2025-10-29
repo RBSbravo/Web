@@ -712,7 +712,7 @@ const Settings = () => {
                           • <strong>Notifications</strong> - View system notifications
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
-                          • <strong>Profile Menu</strong> - Access account settings and logout
+                          • <strong>Profile Menu</strong> - Display profile details and access logout button
                         </Typography>
                       </Box>
                     </Grid>
