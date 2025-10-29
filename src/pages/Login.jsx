@@ -37,11 +37,14 @@ import {
   Business as BusinessIcon,
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
+  Help as HelpIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import mitoLogo from '../assets/mito_logo.png';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 import RateLimitAlert from '../components/RateLimitAlert';
+import UserGuide from '../components/UserGuide';
 import useUser from '../context/useUser';
 import { authAPI } from '../services/api';
 import { handleApiError, rateLimitHandler } from '../utils/rateLimitHandler';
@@ -88,6 +91,9 @@ const Login = () => {
   const [forgotPwLoading, setForgotPwLoading] = useState(false);
   const [forgotPwError, setForgotPwError] = useState('');
   const [forgotPwSuccess, setForgotPwSuccess] = useState('');
+
+  // Add state for user guide modal
+  const [userGuideOpen, setUserGuideOpen] = useState(false);
 
   useEffect(() => {
     if (user && user.isAuthenticated) {
@@ -347,6 +353,29 @@ const Login = () => {
                 : '0 8px 32px rgba(0,0,0,0.1)',
             }}
           >
+            {/* User Guide Button - Upper Right */}
+            <IconButton
+              onClick={() => setUserGuideOpen(true)}
+              sx={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.1)' 
+                  : 'rgba(0,0,0,0.04)',
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.2)' 
+                    : 'rgba(0,0,0,0.08)',
+                },
+                zIndex: 1,
+              }}
+              size="small"
+              title="User Guide"
+            >
+              <HelpIcon sx={{ color: 'primary.main' }} />
+            </IconButton>
+
             {/* Logo */}
             <Fade in={true} timeout={1200}>
               <Box
@@ -834,6 +863,45 @@ const Login = () => {
             )}
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* User Guide Modal */}
+      <Dialog
+        open={userGuideOpen}
+        onClose={() => setUserGuideOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            maxHeight: '90vh',
+            borderRadius: 2,
+            backgroundColor: theme.palette.background.paper,
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          pb: 1, 
+          fontWeight: 600,
+          color: theme.palette.text.primary,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <HelpIcon sx={{ mr: 1, color: 'primary.main' }} />
+            User Guide
+          </Box>
+          <IconButton
+            onClick={() => setUserGuideOpen(false)}
+            size="small"
+            sx={{ color: theme.palette.text.secondary }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0, overflow: 'auto' }}>
+          <UserGuide />
+        </DialogContent>
       </Dialog>
     </Box>
   );
