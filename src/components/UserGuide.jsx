@@ -75,7 +75,7 @@ const UserGuide = () => {
                   • <strong>Employees</strong> - Manage team members (Admin/Department Head only)
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  • <strong>Settings</strong> - Account settings and user guide
+                  • <strong>Settings</strong> - Account settings (Edit Profile, Change Password)
                 </Typography>
               </Box>
             </Grid>
@@ -98,7 +98,7 @@ const UserGuide = () => {
                   • <strong>Notifications</strong> - View system notifications
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  • <strong>Profile Menu</strong> - Access account settings and logout
+                  • <strong>Profile Menu</strong> - Access  logout
                 </Typography>
               </Box>
             </Grid>
@@ -149,7 +149,7 @@ const UserGuide = () => {
                   • <strong>Overdue Tasks</strong> - Tasks past due date
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  • <strong>Active Users</strong> - Currently online users
+                  • <strong>Active Users</strong> - Department users
                 </Typography>
               </Box>
             </Grid>

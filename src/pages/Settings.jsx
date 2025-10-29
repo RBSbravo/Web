@@ -763,7 +763,7 @@ const Settings = () => {
                           • <strong>Overdue Tasks</strong> - Tasks past due date
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1 }}>
-                          • <strong>Active Users</strong> - Currently online users
+                          • <strong>Active Users</strong> - Department users
                         </Typography>
                       </Box>
                     </Grid>
