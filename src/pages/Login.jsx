@@ -106,13 +106,17 @@ const Login = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Fetch departments for registration
+  // Fetch departments for registration - only show departments without a department head
   useEffect(() => {
     if (tab === 1 && departments.length === 0) {
       const fetchDepartments = async () => {
         try {
           const response = await authAPI.getDepartments();
-          setDepartments(response.data);
+          // Filter to only show departments without a department head assigned
+          const departmentsWithoutHead = (response.data || []).filter(
+            (dept) => !dept.headId && !dept.head
+          );
+          setDepartments(departmentsWithoutHead);
         } catch (error) {
           // ignore
         }
