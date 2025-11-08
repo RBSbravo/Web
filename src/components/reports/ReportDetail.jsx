@@ -89,6 +89,38 @@ const ReportDetail = ({ report }) => {
     }
   };
 
+  // Format duration from days (used for resolution/completion time)
+  const formatDurationFromDays = (days) => {
+    if (days === null || days === undefined || isNaN(days) || days < 0) {
+      return 'No data';
+    }
+    
+    if (days === 0) {
+      return '0 days';
+    }
+    
+    const totalHours = days * 24;
+    const totalMinutes = totalHours * 60;
+    
+    const daysPart = Math.floor(days);
+    const hoursPart = Math.floor((days - daysPart) * 24);
+    const minutesPart = Math.floor((totalMinutes - (daysPart * 24 * 60) - (hoursPart * 60)));
+    
+    const parts = [];
+    if (daysPart > 0) {
+      parts.push(`${daysPart}d`);
+    }
+    if (hoursPart > 0) {
+      parts.push(`${hoursPart}h`);
+    }
+    if (minutesPart > 0 && daysPart === 0) {
+      // Only show minutes if less than a day
+      parts.push(`${minutesPart}m`);
+    }
+    
+    return parts.length > 0 ? parts.join(' ') : '< 1m';
+  };
+
   const formatKey = (key) => {
     return key.replace(/([A-Z])/g, ' $1').trim().replace(/^./, str => str.toUpperCase());
   };
@@ -162,18 +194,26 @@ const ReportDetail = ({ report }) => {
               Summary
             </Typography>
             <Grid container spacing={2}>
-              {Object.entries(reportData.summary).map(([key, value]) => (
-                <Grid item xs={6} sm={4} md={3} key={key}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
-                      {formatValue(value)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
-                      {formatKey(key)}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
+              {Object.entries(reportData.summary).map(([key, value]) => {
+                // Check if this is a time/duration field that should be formatted specially
+                const isTimeField = key.toLowerCase().includes('time') || key.toLowerCase().includes('duration');
+                const displayValue = isTimeField && typeof value === 'number' 
+                  ? formatDurationFromDays(value)
+                  : formatValue(value);
+                
+                return (
+                  <Grid item xs={6} sm={4} md={3} key={key}>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
+                        {displayValue}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                        {formatKey(key)}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                );
+              })}
         </Grid>
                 </CardContent>
               </Card>
@@ -243,11 +283,15 @@ const ReportDetail = ({ report }) => {
             </Typography>
             <Grid container spacing={2}>
               {Object.entries(reportData.userProfile || reportData.departmentProfile).map(([key, value]) => {
+                // Check if this is a time/duration field that should be formatted specially
+                const isTimeField = key.toLowerCase().includes('time') || key.toLowerCase().includes('duration');
                 let displayValue = '';
                 if (typeof value === 'string') {
                   displayValue = value;
                 } else if (typeof value === 'number') {
-                  displayValue = value.toString();
+                  displayValue = isTimeField 
+                    ? formatDurationFromDays(value)
+                    : value.toString();
                 } else if (typeof value === 'object' && value !== null) {
                   if (Array.isArray(value)) {
                     displayValue = value.join(', ');
@@ -284,18 +328,26 @@ const ReportDetail = ({ report }) => {
               Custom Metrics
             </Typography>
             <Grid container spacing={2}>
-              {Object.entries(reportData.customMetrics).map(([key, value]) => (
-                <Grid item xs={6} sm={4} md={3} key={key}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
-                      {formatValue(value)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
-                      {formatKey(key)}
-                    </Typography>
-                  </Box>
-                </Grid>
-              ))}
+              {Object.entries(reportData.customMetrics).map(([key, value]) => {
+                // Check if this is a time/duration field that should be formatted specially
+                const isTimeField = key.toLowerCase().includes('time') || key.toLowerCase().includes('duration');
+                const displayValue = isTimeField && typeof value === 'number' 
+                  ? formatDurationFromDays(value)
+                  : formatValue(value);
+                
+                return (
+                  <Grid item xs={6} sm={4} md={3} key={key}>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
+                        {displayValue}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                        {formatKey(key)}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                );
+              })}
             </Grid>
           </CardContent>
         </Card>
@@ -709,11 +761,8 @@ const ReportDetail = ({ report }) => {
                   if (isPercentage) {
                     displayValue = `${value.toFixed(1)}%`;
                   } else if (isTime) {
-                    if (value < 1) {
-                      displayValue = `${(value * 24).toFixed(1)} hours`;
-                    } else {
-                      displayValue = `${value.toFixed(1)} days`;
-                    }
+                    // Use the improved duration formatter
+                    displayValue = formatDurationFromDays(value);
                   } else {
                     displayValue = value.toLocaleString();
                   }
